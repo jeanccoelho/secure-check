@@ -1,69 +1,37 @@
-# Build directories
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
 build/
-build-*/
-debug/
-release/
 
-# Qt specific
-*.pro.user
-*.pro.user.*
-*.qbs.user
-*.qbs.user.*
-*.moc
-moc_*.cpp
-moc_*.h
-qrc_*.cpp
-ui_*.h
-*.qmlc
-*.jsc
-Makefile*
-*build-*
+# Arquivos C++ compilados (mas manter código fonte)
+cpp-app/build/
+cpp-app/bin/
+cpp-app/*.exe
+cpp-app/*.o
+cpp-app/*.obj
+cpp-app/*.dll
+cpp-app/*.so
+cpp-app/*.dylib
 
-# CMake
-CMakeCache.txt
-CMakeFiles/
-CMakeScripts/
-Testing/
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps/
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Visual Studio
-.vs/
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-*.sln
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Executables
-*.exe
-*.out
-*.app
-SecurityChecker
-SecurityChecker.exe
-
-# Libraries
-*.so
-*.dylib
-*.dll
-*.a
-*.lib
-
-# Temporary files
-*.tmp
-*.temp
-*~
+# IDE files
+.vscode/
+.idea/
 *.swp
 *.swo
 
-# OS specific
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -72,19 +40,74 @@ SecurityChecker.exe
 ehthumbs.db
 Thumbs.db
 
-# IDE specific
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
+# C++ Application (não incluir no deploy web)
+*.exe
+*.o
+*.obj
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
 
 # Logs
+logs/
 *.log
 
-# Package files
-*.deb
-*.rpm
-*.dmg
-*.pkg
-*.msi
-.env
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
