@@ -54,6 +54,13 @@ EOF
 
 # Build Linux usando Docker
 echo "🔨 Compilando para Linux..."
+
+# Limpar cache anterior se existir
+if [[ -d "$PROJECT_DIR/build-linux" ]]; then
+    echo "🧹 Limpando cache anterior..."
+    rm -rf "$PROJECT_DIR/build-linux"
+fi
+
 docker build -f "$PROJECT_DIR/Dockerfile.linux" -t securitychecker-linux "$PROJECT_DIR"
 
 # Extrair resultado
