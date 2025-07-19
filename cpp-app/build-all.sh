@@ -27,12 +27,39 @@ echo "🐧 Preparando build para Linux..."
 cat > "$PROJECT_DIR/Dockerfile.linux" << 'EOF'
 FROM ubuntu:22.04
 
+# Evitar prompts interativos
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Instalar dependências
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     qt6-base-dev \
     qt6-tools-dev \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    libxkbcommon-dev \
+    libxkbcommon-x11-dev \
+    libxcb1-dev \
+    libxcb-xkb-dev \
+    libxcb-icccm4-dev \
+    libxcb-image0-dev \
+    libxcb-keysyms1-dev \
+    libxcb-randr0-dev \
+    libxcb-render-util0-dev \
+    libxcb-shape0-dev \
+    libxcb-sync-dev \
+    libxcb-xfixes0-dev \
+    libxcb-xinerama0-dev \
+    libfontconfig1-dev \
+    libfreetype6-dev \
+    libx11-dev \
+    libx11-xcb-dev \
+    libxext-dev \
+    libxfixes-dev \
+    libxi-dev \
+    libxrender-dev \
+    libxrandr-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
