@@ -843,7 +843,7 @@ void SecurityChecker::showResults()
         ).arg(bgColor));
         
         QVBoxLayout *cardLayout = new QVBoxLayout(card);
-        cardLayout->setAlignment(Qt::AlignCenter);
+        cardLayout->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         cardLayout->setSpacing(8);
         cardLayout->setContentsMargins(16, 20, 16, 20);
         
@@ -853,7 +853,8 @@ void SecurityChecker::showResults()
             "font-weight: 700; "
             "color: %1; "
             "background: transparent; "
-            "border: none;"
+            "border: none; "
+            "text-align: center;"
         ).arg(textColor));
         numLabel->setAlignment(Qt::AlignCenter);
         
@@ -863,7 +864,8 @@ void SecurityChecker::showResults()
             "color: %1; "
             "background: transparent; "
             "font-weight: 600; "
-            "border: none;"
+            "border: none; "
+            "text-align: center;"
         ).arg(textColor == "white" ? "rgba(255, 255, 255, 0.9)" : textColor));
         textLabel->setAlignment(Qt::AlignCenter);
         textLabel->setWordWrap(true);
@@ -1057,6 +1059,7 @@ void SecurityChecker::showResults()
     
     QHBoxLayout *homeLayout = new QHBoxLayout();
     homeLayout->setAlignment(Qt::AlignCenter);
+    homeLayout->setSpacing(16);
     
     QPushButton *homeButton = new QPushButton("🏠 Voltar ao Início");
     homeButton->setStyleSheet(
@@ -1080,7 +1083,32 @@ void SecurityChecker::showResults()
     homeButton->setCursor(Qt::PointingHandCursor);
     connect(homeButton, &QPushButton::clicked, this, &SecurityChecker::onBackClicked);
     
+    QPushButton *closeButton = new QPushButton("❌ Encerrar");
+    closeButton->setStyleSheet(
+        "QPushButton { "
+        "background: #dc2626; "
+        "color: white; "
+        "border: none; "
+        "border-radius: 8px; "
+        "padding: 16px 32px; "
+        "font-size: 16px; "
+        "font-weight: 600; "
+        "font-family: 'Segoe UI', sans-serif; "
+        "} "
+        "QPushButton:hover { "
+        "background: #b91c1c; "
+        "} "
+        "QPushButton:pressed { "
+        "background: #991b1b; "
+        "}"
+    );
+    closeButton->setCursor(Qt::PointingHandCursor);
+    connect(closeButton, &QPushButton::clicked, []() {
+        QApplication::quit();
+    });
+    
     homeLayout->addWidget(homeButton);
+    homeLayout->addWidget(closeButton);
     m_resultsLayout->addLayout(homeLayout);
     
     // Forçar atualização do layout
