@@ -271,7 +271,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
           <div className="mt-6 text-center">
             <p className="text-sm opacity-75">
               Ou baixe diretamente pelos cards acima para seu sistema operacional
-            </button>
+            </p>
             <p className="mt-2 text-sm opacity-75">
               Código fonte disponível no <a href="https://github.com/jeanccoelho/secure-check" className="underline">GitHub</a>
             </p>
