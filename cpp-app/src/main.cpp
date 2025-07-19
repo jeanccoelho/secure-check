@@ -55,8 +55,17 @@ int main(int argc, char *argv[])
     app.setStyle(QStyleFactory::create("Fusion"));
     
     // Configurar fonte padrão
-    QFont font = app.font();
-    font.setPointSize(10);
+    QFont font("Segoe UI", 10);
+    if (!font.exactMatch()) {
+        font = QFont("Roboto", 10);
+        if (!font.exactMatch()) {
+            font = QFont("Inter", 10);
+            if (!font.exactMatch()) {
+                font = app.font();
+                font.setPointSize(10);
+            }
+        }
+    }
     app.setFont(font);
     
     // Aplicar tema escuro moderno

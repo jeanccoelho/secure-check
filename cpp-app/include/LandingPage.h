@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QFrame>
+#include <QPropertyAnimation>
 
 class LandingPage : public QWidget
 {
@@ -22,7 +23,7 @@ signals:
 private slots:
     void onStartScanClicked();
     void onGitHubClicked();
-    void onDownloadClicked();
+    void animateEntrance();
 
 private:
     void setupUI();
@@ -31,6 +32,7 @@ private:
     
     QVBoxLayout *m_mainLayout;
     
+    QFrame *m_heroFrame;
     QPushButton *m_startScanButton;
     QPushButton *m_githubButton;
 };
