@@ -44,7 +44,7 @@ void SecurityChecker::setupUI()
     // Aplicar estilos modernos similares à versão web
     setStyleSheet(R"(
         QWidget {
-            background: white;
+            background: #f9fafb;
             font-family: "Segoe UI", "Roboto", "Inter", sans-serif;
         }
         
@@ -664,33 +664,6 @@ void SecurityChecker::updateActionButtons()
     }
 }
 
-void SecurityChecker::updateOSDisplay()
-{
-    if (!m_osDisplay) return;
-    
-    qDebug() << "=== ATUALIZANDO DISPLAY DO OS ===";
-    qDebug() << "currentOS:" << m_currentOS;
-    
-    QString osDisplayText;
-    if (m_currentOS == "windows") {
-        osDisplayText = QString("🪟 Windows\n%1").arg(QSysInfo::prettyProductName());
-    }
-    else if (m_currentOS == "linux") {
-        osDisplayText = QString("🐧 Linux\n%1").arg(QSysInfo::prettyProductName());
-    }
-    else if (m_currentOS == "macos") {
-        osDisplayText = QString("🍎 macOS\n%1").arg(QSysInfo::prettyProductName());
-    }
-    else {
-        osDisplayText = QString("❓ Sistema Desconhecido\n%1\nKernel: %2")
-            .arg(QSysInfo::prettyProductName())
-            .arg(QSysInfo::kernelType());
-    }
-    
-    m_osDisplay->setText(osDisplayText);
-    qDebug() << "Display atualizado para:" << osDisplayText;
-}
-
 void SecurityChecker::onStartCheckClicked()
 {
     if (m_currentCheckIndex >= m_currentVulnerabilities.size()) {
@@ -1208,4 +1181,44 @@ QString SecurityChecker::getStatusColor(CheckStatus status) const
         case CheckStatus::Skipped: return "#d97706";
         default: return "#6b7280";
     }
+}
+
+void SecurityChecker::updateOSDisplay()
+{
+    if (!m_vulnerabilityManager) {
+        qDebug() << "VulnerabilityManager não inicializado";
+        return;
+    }
+    
+    QString currentOS = m_vulnerabilityManager->getCurrentOS();
+    QString prettyName = QSysInfo::prettyProductName();
+    
+    qDebug() << "=== ATUALIZANDO DISPLAY DO OS ===";
+    qDebug() << "OS detectado:" << currentOS;
+    qDebug() << "Pretty name:" << prettyName;
+    
+    QString displayText;
+    QString emoji;
+    
+    if (currentOS == "linux") {
+        emoji = "🐧";
+        displayText = QString("Linux\n%1").arg(prettyName);
+    } else if (currentOS == "windows") {
+        emoji = "🪟";
+        displayText = QString("Windows\n%1").arg(prettyName);
+    } else if (currentOS == "macos") {
+        emoji = "🍎";
+        displayText = QString("macOS\n%1").arg(prettyName);
+    } else {
+        emoji = "❓";
+        displayText = QString("Sistema Desconhecido\n%1").arg(prettyName);
+    }
+    
+    QString finalText = QString("%1 %2").arg(emoji, displayText);
+    
+    qDebug() << "Texto final para display:" << finalText;
+    
+    m_osDisplay->setText(finalText);
+    
+    qDebug() << "Display atualizado com sucesso!";
 }
