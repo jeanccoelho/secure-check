@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include "MainWindow.h"
 
-#ifdef _WIN32
+#ifdef Q_OS_WIN
 #include <windows.h>
 #include <shellapi.h>
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         );
         
         if (reply == QMessageBox::Yes) {
-#ifdef _WIN32
+#ifdef Q_OS_WIN
             requestAdminPrivileges();
             return 0;
 #else

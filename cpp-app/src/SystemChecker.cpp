@@ -73,7 +73,7 @@ void SystemChecker::fixVulnerability(const VulnerabilityDefinition &vuln)
 
 bool SystemChecker::isRunningAsAdmin() const
 {
-#ifdef _WIN32
+#ifdef Q_OS_WIN
     BOOL isAdmin = FALSE;
     PSID adminGroup = NULL;
     SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
@@ -120,7 +120,7 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
 {
     // Comandos reais de verificação para cada vulnerabilidade
     
-#ifdef _WIN32
+#ifdef Q_OS_WIN
     if (vuln.id == "UAC_DISABLED") {
         return "reg query \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v EnableLUA | findstr \"0x0\"";
     }
@@ -151,7 +151,7 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
     else if (vuln.id == "GUEST_ACCOUNT_ENABLED") {
         return "net user Guest | findstr \"Account active.*Yes\"";
     }
-#elif defined(__linux__)
+#elif defined(Q_OS_LINUX)
     if (vuln.id == "SSH_ROOT_LOGIN") {
         return "grep -i '^PermitRootLogin yes' /etc/ssh/sshd_config";
     }
@@ -190,7 +190,7 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
     else if (vuln.id == "OLD_KERNEL") {
         return "apt list --upgradable 2>/dev/null | grep linux-image";
     }
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
     if (vuln.id == "GATEKEEPER_OFF") {
         return "spctl --status | grep 'assessments disabled'";
     }
@@ -230,7 +230,7 @@ QString SystemChecker::getFixCommand(const VulnerabilityDefinition &vuln) const
 {
     // Comandos de correção específicos e inteligentes
     
-#ifdef __linux__
+#ifdef Q_OS_LINUX
     if (vuln.id == "NO_FIREWALL") {
         // Instalar UFW
         return "echo 'Instalando UFW...' && apt update && apt install -y ufw && echo 'UFW instalado com sucesso!'";
@@ -289,7 +289,7 @@ bool SystemChecker::executeCommand(const QString &command, QProcess *process)
     
     qDebug() << "Executando comando:" << command;
     
-#ifdef _WIN32
+#ifdef Q_OS_WIN
     if (command.startsWith("powershell")) {
         QString psCommand = command.mid(11); // Remove "powershell "
         process->start("powershell.exe", QStringList() << "-Command" << psCommand);
