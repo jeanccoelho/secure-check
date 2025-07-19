@@ -27,7 +27,6 @@ signals:
 
 private slots:
     void onBackClicked();
-    void onOSChanged(const QString &os);
     void onStartCheckClicked();
     void onFixClicked();
     void onSkipClicked();
@@ -58,7 +57,6 @@ private:
     // UI Components
     QVBoxLayout *m_mainLayout;
     QPushButton *m_backButton;
-    QComboBox *m_osComboBox;
     QProgressBar *m_progressBar;
     QLabel *m_progressLabel;
     

@@ -274,23 +274,37 @@ void SecurityChecker::createHeader()
     m_backButton->setObjectName("backButton");
     connect(m_backButton, &QPushButton::clicked, this, &SecurityChecker::onBackClicked);
     
-    // Spacer
     headerLayout->addWidget(m_backButton);
     headerLayout->addStretch();
     
-    // Seletor de OS
-    QLabel *osLabel = new QLabel("Sistema Operacional:");
+    // Exibição do OS detectado (somente leitura)
+    QLabel *osLabel = new QLabel("Sistema Detectado:");
     osLabel->setStyleSheet("font-weight: 600; color: #374151; background: white;");
     
-    m_osComboBox = new QComboBox();
-    m_osComboBox->addItem("Windows", "windows");
-    m_osComboBox->addItem("Linux", "linux");
-    m_osComboBox->addItem("macOS", "macos");
-    connect(m_osComboBox, &QComboBox::currentTextChanged, this, &SecurityChecker::onOSChanged);
+    QLabel *osDisplay = new QLabel();
+    osDisplay->setStyleSheet(
+        "background: #f3f4f6; "
+        "color: #1f2937; "
+        "border: 1px solid #d1d5db; "
+        "border-radius: 6px; "
+        "padding: 8px 12px; "
+        "font-weight: 600; "
+        "min-width: 80px;"
+    );
+    
+    // Detectar e exibir o OS atual
+    QString currentOS = m_vulnerabilityManager ? m_vulnerabilityManager->getCurrentOS() : "unknown";
+    QString osDisplayText;
+    if (currentOS == "windows") osDisplayText = "🪟 Windows";
+    else if (currentOS == "linux") osDisplayText = "🐧 Linux";
+    else if (currentOS == "macos") osDisplayText = "🍎 macOS";
+    else osDisplayText = "❓ Desconhecido";
+    
+    osDisplay->setText(osDisplayText);
     
     headerLayout->addWidget(osLabel);
     headerLayout->addSpacing(8);
-    headerLayout->addWidget(m_osComboBox);
+    headerLayout->addWidget(osDisplay);
     
     m_mainLayout->addWidget(headerFrame);
 }
@@ -518,20 +532,7 @@ void SecurityChecker::loadVulnerabilities()
     // Detectar OS atual e configurar
     m_currentOS = m_vulnerabilityManager->getCurrentOS();
     
-    // Configurar combo box
-    for (int i = 0; i < m_osComboBox->count(); ++i) {
-        if (m_osComboBox->itemData(i).toString() == m_currentOS) {
-            m_osComboBox->setCurrentIndex(i);
-            break;
-        }
-    }
-    
-    onOSChanged(m_currentOS);
-}
-
-void SecurityChecker::onOSChanged(const QString &os)
-{
-    m_currentOS = m_osComboBox->currentData().toString();
+    // Carregar vulnerabilidades para o OS detectado
     m_currentVulnerabilities = m_vulnerabilityManager->getDefinitionsForOS(m_currentOS);
     
     resetChecker();
