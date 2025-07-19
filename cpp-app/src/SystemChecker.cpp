@@ -153,44 +153,45 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
     }
 #elif defined(__linux__)
     if (vuln.id == "SSH_ROOT_LOGIN") {
-        return "grep -i \"^PermitRootLogin yes\" /etc/ssh/sshd_config";
+        return "grep -i '^PermitRootLogin yes' /etc/ssh/sshd_config";
     }
     else if (vuln.id == "NO_FIREWALL") {
-        return "ufw status | grep -i \"Status: inactive\"";
+        // Verificar se ufw existe E está inativo, ou se não existe firewall
+        return "command -v ufw >/dev/null && ufw status | grep -i 'Status: inactive' || ! command -v ufw >/dev/null";
     }
     else if (vuln.id == "SUDO_NOPASSWD") {
-        return "grep -r \"NOPASSWD\" /etc/sudoers /etc/sudoers.d/";
+        return "grep -r 'NOPASSWD' /etc/sudoers /etc/sudoers.d/ 2>/dev/null";
     }
     else if (vuln.id == "OLD_KERNEL") {
         return "apt list --upgradable 2>/dev/null | grep linux-image";
     }
     else if (vuln.id == "FTP_ANON_ENABLED") {
-        return "grep -i \"anonymous_enable=YES\" /etc/vsftpd.conf";
+        return "test -f /etc/vsftpd.conf && grep -i 'anonymous_enable=YES' /etc/vsftpd.conf";
     }
     else if (vuln.id == "UNATTENDED_UPGRADES_OFF") {
-        return "systemctl is-enabled unattended-upgrades | grep disabled";
+        return "! systemctl is-enabled unattended-upgrades >/dev/null 2>&1 || systemctl is-enabled unattended-upgrades | grep -q disabled";
     }
     else if (vuln.id == "APPARMOR_DISABLED") {
-        return "systemctl is-active apparmor | grep inactive";
+        return "! systemctl is-active apparmor >/dev/null 2>&1 || systemctl is-active apparmor | grep -q inactive";
     }
     else if (vuln.id == "DEFAULT_SSH_PORT") {
-        return "grep -i \"^Port 22\" /etc/ssh/sshd_config";
+        return "test -f /etc/ssh/sshd_config && (grep -i '^Port 22' /etc/ssh/sshd_config || ! grep -i '^Port' /etc/ssh/sshd_config)";
     }
     else if (vuln.id == "NO_FAIL2BAN") {
-        return "systemctl is-active fail2ban | grep inactive";
+        return "! systemctl is-active fail2ban >/dev/null 2>&1 || systemctl is-active fail2ban | grep -q inactive";
     }
     else if (vuln.id == "WEAK_FILE_PERMS") {
-        return "find /etc -name passwd -perm /022 -o -name shadow -perm /077";
+        return "find /etc -name passwd -perm /022 -o -name shadow -perm /077 2>/dev/null";
     }
 #elif defined(__APPLE__)
     if (vuln.id == "GATEKEEPER_OFF") {
-        return "spctl --status | grep \"assessments disabled\"";
+        return "spctl --status | grep 'assessments disabled'";
     }
     else if (vuln.id == "FIREWALL_OFF") {
-        return "/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate | grep \"Firewall is disabled\"";
+        return "/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate | grep 'Firewall is disabled'";
     }
     else if (vuln.id == "NO_FILEVAULT") {
-        return "fdesetup status | grep \"FileVault is Off\"";
+        return "fdesetup status | grep 'FileVault is Off'";
     }
     else if (vuln.id == "AUTOMOUNT_USB") {
         return "defaults read /Library/Preferences/SystemConfiguration/autodiskmount AutomountDisksWithoutUserLogin | grep 1";
@@ -199,7 +200,7 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
         return "defaults read ~/Library/Preferences/MobileMeAccounts Accounts | grep Documents";
     }
     else if (vuln.id == "UNKNOWN_EXTENSIONS_ENABLED") {
-        return "spctl --list | grep \"unknown\"";
+        return "spctl --list | grep 'unknown'";
     }
     else if (vuln.id == "NO_PASSWORD_SLEEP") {
         return "defaults read com.apple.screensaver askForPassword | grep 0";
