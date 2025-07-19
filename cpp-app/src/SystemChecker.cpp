@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QDir>
+#include <QRandomGenerator>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -38,7 +39,7 @@ void SystemChecker::checkVulnerability(const VulnerabilityDefinition &vuln)
         // Simular verificação para comandos não implementados
         QTimer::singleShot(1000, [this, vuln]() {
             // Simular resultado aleatório para demonstração
-            bool isVulnerable = (qrand() % 100) > 40; // 60% chance de ser vulnerável
+            bool isVulnerable = (QRandomGenerator::global()->bounded(100)) > 40; // 60% chance de ser vulnerável
             emit checkCompleted(vuln.id, isVulnerable);
         });
         return;

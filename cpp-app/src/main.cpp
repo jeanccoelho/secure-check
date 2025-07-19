@@ -4,6 +4,7 @@
 #include <QStandardPaths>
 #include <QStyleFactory>
 #include <QFont>
+#include <unistd.h>
 #include "MainWindow.h"
 
 #ifdef _WIN32
