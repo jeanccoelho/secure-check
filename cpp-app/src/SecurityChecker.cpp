@@ -209,9 +209,9 @@ void SecurityChecker::setupUI()
         }
         
         QTextEdit {
-            background: #1f2937;
-            color: #f3f4f6;
-            border: 1px solid #374151;
+            background: white;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 12px;
@@ -801,6 +801,10 @@ void SecurityChecker::showResults()
     // Mostrar seção de resultados
     m_resultsFrame->setVisible(true);
     
+    // Atualizar progresso para 100%
+    m_progressBar->setValue(100);
+    m_progressLabel->setText(QString("%1 de %1").arg(m_currentVulnerabilities.size()));
+    
     // Limpar layout anterior
     QLayoutItem *item;
     while ((item = m_resultsLayout->takeAt(0)) != nullptr) {
@@ -878,9 +882,9 @@ void SecurityChecker::showResults()
     
     // Adicionar cards de estatísticas
     statsGrid->addWidget(createStatCard(QString::number(total), "Total de\nVerificações", "#3b82f6"), 0, 0);
-    statsGrid->addWidget(createStatCard(QString::number(vulnerable), "Vulnerabilidades\nEncontradas", "#ef4444"), 0, 1);
+    statsGrid->addWidget(createStatCard(QString::number(vulnerable + skipped), "Vulnerabilidades\nEncontradas", "#ef4444"), 0, 1);
     statsGrid->addWidget(createStatCard(QString::number(fixed), "Corrigidas", "#10b981"), 0, 2);
-    statsGrid->addWidget(createStatCard(QString::number(skipped), "Ignoradas", "#f59e0b"), 0, 3);
+    statsGrid->addWidget(createStatCard(QString::number(skipped), "Ignoradas", "#6b7280"), 0, 3);
     
     // Configurar colunas para serem iguais
     for (int i = 0; i < 4; i++) {
@@ -890,168 +894,171 @@ void SecurityChecker::showResults()
     m_resultsLayout->addLayout(statsGrid);
     m_resultsLayout->addSpacing(32);
     
-    // Lista detalhada de resultados
-    QLabel *detailsTitle = new QLabel("Detalhes das Verificações");
-    detailsTitle->setStyleSheet(
-        "font-size: 20px; "
-        "font-weight: 600; "
-        "color: #1f2937; "
-        "background: white; "
-        "margin-bottom: 16px;"
-    );
-    m_resultsLayout->addWidget(detailsTitle);
-    m_resultsLayout->addSpacing(16);
-    
-    for (const auto &result : m_checkResults) {
-        const VulnerabilityDefinition *vuln = nullptr;
-        for (const auto &v : m_currentVulnerabilities) {
-            if (v.id == result.id) {
-                vuln = &v;
-                break;
-            }
-        }
-        
-        if (!vuln) continue;
-        
-        QFrame *resultCard = new QFrame();
-        resultCard->setStyleSheet(
-            "QFrame { "
-            "background: white; "
-            "border: 1px solid #e5e7eb; "
-            "border-radius: 12px; "
-            "padding: 20px; "
-            "margin: 4px; "
-            "} "
-            "QFrame:hover { "
-            "border-color: #d1d5db; "
-            "}"
-        );
-        
-        QHBoxLayout *cardLayout = new QHBoxLayout(resultCard);
-        cardLayout->setSpacing(16);
-        cardLayout->setContentsMargins(20, 16, 20, 16);
-        
-        // Ícone de status
-        QLabel *statusIcon = new QLabel();
-        statusIcon->setStyleSheet("font-size: 32px; background: transparent; border: none;");
-        statusIcon->setFixedSize(40, 40);
-        statusIcon->setAlignment(Qt::AlignCenter);
-        
-        QString statusText;
-        QString statusColor;
-        
-        switch (result.status) {
-            case CheckStatus::Vulnerable:
-                statusIcon->setText("⚠️");
-                statusText = "Vulnerável";
-                statusColor = "#dc2626";
-                break;
-            case CheckStatus::Safe:
-                statusIcon->setText("✅");
-                statusText = "Seguro";
-                statusColor = "#059669";
-                break;
-            case CheckStatus::Fixed:
-                statusIcon->setText("🔧");
-                statusText = "Corrigido";
-                statusColor = "#2563eb";
-                break;
-            case CheckStatus::Skipped:
-                statusIcon->setText("⏭️");
-                statusText = "Ignorado";
-                statusColor = "#d97706";
-                break;
-            default:
-                statusIcon->setText("❓");
-                statusText = "Desconhecido";
-                statusColor = "#6b7280";
-                break;
-        }
-        
-        // Informações da vulnerabilidade
-        QVBoxLayout *infoLayout = new QVBoxLayout();
-        infoLayout->setSpacing(8);
-        
-        QLabel *nameLabel = new QLabel(vuln->name);
-        nameLabel->setStyleSheet(
+    // Só mostrar detalhes se houver resultados para mostrar
+    if (!m_checkResults.isEmpty()) {
+        // Lista detalhada de resultados
+        QLabel *detailsTitle = new QLabel("Detalhes das Verificações");
+        detailsTitle->setStyleSheet(
+            "font-size: 20px; "
             "font-weight: 600; "
-            "font-size: 16px; "
             "color: #1f2937; "
-            "background: transparent; "
-            "border: none;"
+            "background: white; "
+            "margin-bottom: 16px;"
         );
+        m_resultsLayout->addWidget(detailsTitle);
+        m_resultsLayout->addSpacing(16);
+    
+        for (const auto &result : m_checkResults) {
+            const VulnerabilityDefinition *vuln = nullptr;
+            for (const auto &v : m_currentVulnerabilities) {
+                if (v.id == result.id) {
+                    vuln = &v;
+                    break;
+                }
+            }
         
-        QLabel *descLabel = new QLabel(vuln->description);
-        descLabel->setStyleSheet(
-            "color: #6b7280; "
-            "font-size: 14px; "
-            "background: transparent; "
-            "border: none; "
-            "line-height: 1.4;"
-        );
-        descLabel->setWordWrap(true);
+            if (!vuln) continue;
         
-        infoLayout->addWidget(nameLabel);
-        infoLayout->addWidget(descLabel);
+            QFrame *resultCard = new QFrame();
+            resultCard->setStyleSheet(
+                "QFrame { "
+                "background: white; "
+                "border: 1px solid #e5e7eb; "
+                "border-radius: 12px; "
+                "padding: 20px; "
+                "margin: 4px; "
+                "} "
+                "QFrame:hover { "
+                "border-color: #d1d5db; "
+                "}"
+            );
         
-        // Status e severidade
-        QVBoxLayout *statusLayout = new QVBoxLayout();
-        statusLayout->setAlignment(Qt::AlignTop | Qt::AlignRight);
-        statusLayout->setSpacing(8);
+            QHBoxLayout *cardLayout = new QHBoxLayout(resultCard);
+            cardLayout->setSpacing(16);
+            cardLayout->setContentsMargins(20, 16, 20, 16);
         
-        // Badge de severidade
-        QString severityText = vuln->severity == Severity::Alta ? "Alta" :
-                              vuln->severity == Severity::Media ? "Média" : "Baixa";
+            // Ícone de status
+            QLabel *statusIcon = new QLabel();
+            statusIcon->setStyleSheet("font-size: 32px; background: transparent; border: none;");
+            statusIcon->setFixedSize(40, 40);
+            statusIcon->setAlignment(Qt::AlignCenter);
         
-        QString severityBg, severityColor;
-        switch (vuln->severity) {
-            case Severity::Alta:
-                severityBg = "#fef2f2";
-                severityColor = "#dc2626";
-                break;
-            case Severity::Media:
-                severityBg = "#fffbeb";
-                severityColor = "#d97706";
-                break;
-            case Severity::Baixa:
-                severityBg = "#fefce8";
-                severityColor = "#ca8a04";
-                break;
+            QString statusText;
+            QString statusColor;
+        
+            switch (result.status) {
+                case CheckStatus::Vulnerable:
+                    statusIcon->setText("⚠️");
+                    statusText = "Vulnerável";
+                    statusColor = "#dc2626";
+                    break;
+                case CheckStatus::Safe:
+                    statusIcon->setText("✅");
+                    statusText = "Seguro";
+                    statusColor = "#059669";
+                    break;
+                case CheckStatus::Fixed:
+                    statusIcon->setText("🔧");
+                    statusText = "Corrigido";
+                    statusColor = "#2563eb";
+                    break;
+                case CheckStatus::Skipped:
+                    statusIcon->setText("⏭️");
+                    statusText = "Ignorado";
+                    statusColor = "#d97706";
+                    break;
+                default:
+                    statusIcon->setText("❓");
+                    statusText = "Desconhecido";
+                    statusColor = "#6b7280";
+                    break;
+            }
+        
+            // Informações da vulnerabilidade
+            QVBoxLayout *infoLayout = new QVBoxLayout();
+            infoLayout->setSpacing(8);
+        
+            QLabel *nameLabel = new QLabel(vuln->name);
+            nameLabel->setStyleSheet(
+                "font-weight: 600; "
+                "font-size: 16px; "
+                "color: #1f2937; "
+                "background: transparent; "
+                "border: none;"
+            );
+        
+            QLabel *descLabel = new QLabel(vuln->description);
+            descLabel->setStyleSheet(
+                "color: #6b7280; "
+                "font-size: 14px; "
+                "background: transparent; "
+                "border: none; "
+                "line-height: 1.4;"
+            );
+            descLabel->setWordWrap(true);
+        
+            infoLayout->addWidget(nameLabel);
+            infoLayout->addWidget(descLabel);
+        
+            // Status e severidade
+            QVBoxLayout *statusLayout = new QVBoxLayout();
+            statusLayout->setAlignment(Qt::AlignTop | Qt::AlignRight);
+            statusLayout->setSpacing(8);
+        
+            // Badge de severidade
+            QString severityText = vuln->severity == Severity::Alta ? "Alta" :
+                                  vuln->severity == Severity::Media ? "Média" : "Baixa";
+        
+            QString severityBg, severityColor;
+            switch (vuln->severity) {
+                case Severity::Alta:
+                    severityBg = "#fef2f2";
+                    severityColor = "#dc2626";
+                    break;
+                case Severity::Media:
+                    severityBg = "#fffbeb";
+                    severityColor = "#d97706";
+                    break;
+                case Severity::Baixa:
+                    severityBg = "#fefce8";
+                    severityColor = "#ca8a04";
+                    break;
+            }
+        
+            QLabel *severityLabel = new QLabel(severityText);
+            severityLabel->setStyleSheet(QString(
+                "background: %1; "
+                "color: %2; "
+                "padding: 6px 12px; "
+                "border-radius: 16px; "
+                "font-weight: 600; "
+                "font-size: 12px; "
+                "border: none;"
+            ).arg(severityBg, severityColor));
+            severityLabel->setAlignment(Qt::AlignCenter);
+            severityLabel->setFixedHeight(28);
+        
+            // Status label
+            QLabel *statusLabel = new QLabel(statusText);
+            statusLabel->setStyleSheet(QString(
+                "color: %1; "
+                "font-weight: 600; "
+                "font-size: 14px; "
+                "background: transparent; "
+                "border: none; "
+                "text-transform: capitalize;"
+            ).arg(statusColor));
+            statusLabel->setAlignment(Qt::AlignCenter);
+        
+            statusLayout->addWidget(severityLabel);
+            statusLayout->addWidget(statusLabel);
+        
+            cardLayout->addWidget(statusIcon);
+            cardLayout->addLayout(infoLayout, 1);
+            cardLayout->addLayout(statusLayout);
+        
+            m_resultsLayout->addWidget(resultCard);
         }
-        
-        QLabel *severityLabel = new QLabel(severityText);
-        severityLabel->setStyleSheet(QString(
-            "background: %1; "
-            "color: %2; "
-            "padding: 6px 12px; "
-            "border-radius: 16px; "
-            "font-weight: 600; "
-            "font-size: 12px; "
-            "border: none;"
-        ).arg(severityBg, severityColor));
-        severityLabel->setAlignment(Qt::AlignCenter);
-        severityLabel->setFixedHeight(28);
-        
-        // Status label
-        QLabel *statusLabel = new QLabel(statusText);
-        statusLabel->setStyleSheet(QString(
-            "color: %1; "
-            "font-weight: 600; "
-            "font-size: 14px; "
-            "background: transparent; "
-            "border: none; "
-            "text-transform: capitalize;"
-        ).arg(statusColor));
-        statusLabel->setAlignment(Qt::AlignCenter);
-        
-        statusLayout->addWidget(severityLabel);
-        statusLayout->addWidget(statusLabel);
-        
-        cardLayout->addWidget(statusIcon);
-        cardLayout->addLayout(infoLayout, 1);
-        cardLayout->addLayout(statusLayout);
-        
-        m_resultsLayout->addWidget(resultCard);
     }
     
     // Botão para voltar ao início
