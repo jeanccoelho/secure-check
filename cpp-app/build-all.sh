@@ -87,12 +87,47 @@ mkdir -p "$PROJECT_DIR/packages"
 
 # Build com output direto para diretório local
 DOCKER_BUILDKIT=1 docker build \
-    --output type=local,dest="$PROJECT_DIR/packages" \
+    --output type=local,dest="$PROJECT_DIR/packages/temp" \
     -f "$PROJECT_DIR/Dockerfile.linux" \
     "$PROJECT_DIR"
 
 if [ $? -eq 0 ]; then
     echo "   ✅ Build e extração concluídos com sucesso"
+    
+    # Mover apenas os arquivos necessários
+    echo "📦 Organizando arquivos..."
+    mkdir -p "$PROJECT_DIR/packages/SecurityChecker-$VERSION-linux-x64"
+    
+    if [[ -d "$PROJECT_DIR/packages/temp/output" ]]; then
+        cp "$PROJECT_DIR/packages/temp/output/"* "$PROJECT_DIR/packages/SecurityChecker-$VERSION-linux-x64/" 2>/dev/null || true
+    fi
+    
+    # Criar script de execução
+    cat > "$PROJECT_DIR/packages/SecurityChecker-$VERSION-linux-x64/run.sh" << 'EOF'
+#!/bin/bash
+cd "$(dirname "$0")"
+echo "🛡️  SecurityChecker"
+echo "=================="
+echo ""
+if [[ $EUID -ne 0 ]]; then
+    echo "⚠️  Este programa precisa ser executado como root."
+    echo "   Execute: sudo ./run.sh"
+    exit 1
+fi
+./SecurityChecker
+EOF
+    
+    chmod +x "$PROJECT_DIR/packages/SecurityChecker-$VERSION-linux-x64/run.sh"
+    chmod +x "$PROJECT_DIR/packages/SecurityChecker-$VERSION-linux-x64/SecurityChecker" 2>/dev/null || true
+    
+    # Criar pacote tar.gz
+    cd "$PROJECT_DIR/packages"
+    tar -czf "SecurityChecker-$VERSION-linux-x64.tar.gz" "SecurityChecker-$VERSION-linux-x64"
+    
+    # Limpar arquivos temporários
+    rm -rf temp
+    
+    echo "   ✅ Pacote criado: SecurityChecker-$VERSION-linux-x64.tar.gz"
 else
     echo "   ❌ Erro no build Docker"
 fi
