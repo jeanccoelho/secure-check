@@ -294,15 +294,47 @@ void SecurityChecker::createHeader()
     
     // Detectar e exibir o OS atual
     QString currentOS = m_vulnerabilityManager ? m_vulnerabilityManager->getCurrentOS() : "unknown";
-    qDebug() << "OS detectado no SecurityChecker:" << currentOS;
+    
+    // Exibir informações detalhadas do sistema na interface
+    QString systemInfo = QString("Sistema: %1 | Kernel: %2 | Versão: %3")
+        .arg(QSysInfo::prettyProductName())
+        .arg(QSysInfo::kernelType())
+        .arg(QSysInfo::kernelVersion());
+    
+    qDebug() << "=== INFORMAÇÕES DO SISTEMA NA INTERFACE ===";
+    qDebug() << "OS detectado:" << currentOS;
+    qDebug() << "Sistema completo:" << systemInfo;
     
     QString osDisplayText;
-    if (currentOS == "windows") osDisplayText = "🪟 Windows";
-    else if (currentOS == "linux") osDisplayText = "🐧 Linux";
-    else if (currentOS == "macos") osDisplayText = "🍎 macOS";
-    else osDisplayText = "❓ Sistema Desconhecido";
+    if (currentOS == "windows") {
+        osDisplayText = QString("🪟 Windows\n%1").arg(QSysInfo::prettyProductName());
+    }
+    else if (currentOS == "linux") {
+        osDisplayText = QString("🐧 Linux\n%1").arg(QSysInfo::prettyProductName());
+    }
+    else if (currentOS == "macos") {
+        osDisplayText = QString("🍎 macOS\n%1").arg(QSysInfo::prettyProductName());
+    }
+    else {
+        osDisplayText = QString("❓ Sistema Desconhecido\n%1\nKernel: %2")
+            .arg(QSysInfo::prettyProductName())
+            .arg(QSysInfo::kernelType());
+    }
     
     osDisplay->setText(osDisplayText);
+    osDisplay->setWordWrap(true);
+    osDisplay->setStyleSheet(
+        "background: #f3f4f6; "
+        "color: #1f2937; "
+        "border: 1px solid #d1d5db; "
+        "border-radius: 6px; "
+        "padding: 12px 16px; "
+        "font-weight: 600; "
+        "min-width: 200px; "
+        "max-width: 300px; "
+        "font-size: 12px; "
+        "line-height: 1.4;"
+    );
     
     headerLayout->addWidget(osLabel);
     headerLayout->addSpacing(8);
