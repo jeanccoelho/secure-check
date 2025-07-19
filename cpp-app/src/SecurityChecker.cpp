@@ -281,8 +281,8 @@ void SecurityChecker::createHeader()
     QLabel *osLabel = new QLabel("Sistema Detectado:");
     osLabel->setStyleSheet("font-weight: 600; color: #374151; background: white;");
     
-    QLabel *osDisplay = new QLabel();
-    osDisplay->setStyleSheet(
+    m_osDisplay = new QLabel("Detectando...");
+    m_osDisplay->setStyleSheet(
         "background: #f3f4f6; "
         "color: #1f2937; "
         "border: 1px solid #d1d5db; "
@@ -292,39 +292,8 @@ void SecurityChecker::createHeader()
         "min-width: 80px;"
     );
     
-    // Detectar e exibir o OS atual
-    QString currentOS = m_vulnerabilityManager ? m_vulnerabilityManager->getCurrentOS() : "unknown";
-    
-    qDebug() << "=== DEBUG SECURITYCHECKER ===";
-    qDebug() << "currentOS retornado:" << currentOS;
-    
-    // Exibir informações detalhadas do sistema na interface
-    QString systemInfo = QString("Sistema: %1 | Kernel: %2 | Versão: %3")
-        .arg(QSysInfo::prettyProductName())
-        .arg(QSysInfo::kernelType())
-        .arg(QSysInfo::kernelVersion());
-    
-    qDebug() << "Sistema completo na interface:" << systemInfo;
-    
-    QString osDisplayText;
-    if (currentOS == "windows") {
-        osDisplayText = QString("🪟 Windows\n%1").arg(QSysInfo::prettyProductName());
-    }
-    else if (currentOS == "linux") {
-        osDisplayText = QString("🐧 Linux\n%1").arg(QSysInfo::prettyProductName());
-    }
-    else if (currentOS == "macos") {
-        osDisplayText = QString("🍎 macOS\n%1").arg(QSysInfo::prettyProductName());
-    }
-    else {
-        osDisplayText = QString("❓ Sistema Desconhecido\n%1\nKernel: %2")
-            .arg(QSysInfo::prettyProductName())
-            .arg(QSysInfo::kernelType());
-    }
-    
-    osDisplay->setText(osDisplayText);
-    osDisplay->setWordWrap(true);
-    osDisplay->setStyleSheet(
+    m_osDisplay->setWordWrap(true);
+    m_osDisplay->setStyleSheet(
         "background: #f3f4f6; "
         "color: #1f2937; "
         "border: 1px solid #d1d5db; "
@@ -339,7 +308,7 @@ void SecurityChecker::createHeader()
     
     headerLayout->addWidget(osLabel);
     headerLayout->addSpacing(8);
-    headerLayout->addWidget(osDisplay);
+    headerLayout->addWidget(m_osDisplay);
     
     m_mainLayout->addWidget(headerFrame);
 }
@@ -567,6 +536,9 @@ void SecurityChecker::loadVulnerabilities()
     // Detectar OS atual e configurar
     m_currentOS = m_vulnerabilityManager->getCurrentOS();
     qDebug() << "OS carregado:" << m_currentOS;
+    
+    // Atualizar display do OS no header
+    updateOSDisplay();
     
     // Verificar se o OS é suportado
     if (m_currentOS == "unknown" || m_currentOS.isEmpty()) {

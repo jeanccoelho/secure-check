@@ -57,6 +57,7 @@ private:
     // UI Components
     QVBoxLayout *m_mainLayout;
     QPushButton *m_backButton;
+    QLabel *m_osDisplay;
     QProgressBar *m_progressBar;
     QLabel *m_progressLabel;
     
