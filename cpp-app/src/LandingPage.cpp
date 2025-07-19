@@ -7,8 +7,6 @@
 LandingPage::LandingPage(QWidget *parent)
     : QWidget(parent)
     , m_mainLayout(nullptr)
-    , m_scrollArea(nullptr)
-    , m_contentWidget(nullptr)
 {
     setupUI();
 }
