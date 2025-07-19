@@ -37,10 +37,10 @@ void SystemChecker::checkVulnerability(const VulnerabilityDefinition &vuln)
     QString command = getCheckCommand(vuln);
     if (command.isEmpty()) {
         // Simular verificação para comandos não implementados
-        QTimer::singleShot(1000, [this, vuln]() {
+        QTimer::singleShot(1000, this, [this]() {
             // Simular resultado aleatório para demonstração
             bool isVulnerable = (QRandomGenerator::global()->bounded(100)) > 40; // 60% chance de ser vulnerável
-            emit checkCompleted(vuln.id, isVulnerable);
+            emit checkCompleted(m_currentCheckId, isVulnerable);
         });
         return;
     }
@@ -68,8 +68,8 @@ void SystemChecker::fixVulnerability(const VulnerabilityDefinition &vuln)
     QString command = getFixCommand(vuln);
     if (command.isEmpty()) {
         // Simular correção para comandos não implementados
-        QTimer::singleShot(2000, [this, vuln]() {
-            emit fixCompleted(vuln.id, true);
+        QTimer::singleShot(2000, this, [this]() {
+            emit fixCompleted(m_currentFixId, true);
         });
         return;
     }

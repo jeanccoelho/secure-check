@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QProcess>
 #include <QTimer>
+#include <QRandomGenerator>
 #include "VulnerabilityDefinition.h"
 
 class SystemChecker : public QObject
