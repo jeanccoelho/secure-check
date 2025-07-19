@@ -163,29 +163,32 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
         // Verificar se UFW está instalado mas inativo
         return "command -v ufw >/dev/null 2>&1 && ufw status | grep -i 'Status: inactive'";
     }
+    else if (vuln.id == "SSH_DEFAULT_PORT") {
+        return "test -f /etc/ssh/sshd_config && (grep -i '^Port 22' /etc/ssh/sshd_config || ! grep -i '^Port' /etc/ssh/sshd_config)";
+    }
+    else if (vuln.id == "FAIL2BAN_NOT_INSTALLED") {
+        return "! command -v fail2ban-server >/dev/null 2>&1";
+    }
+    else if (vuln.id == "FAIL2BAN_INACTIVE") {
+        return "command -v fail2ban-server >/dev/null 2>&1 && ! systemctl is-active fail2ban >/dev/null 2>&1";
+    }
+    else if (vuln.id == "UNATTENDED_UPGRADES_OFF") {
+        return "! dpkg -l | grep -q unattended-upgrades || ! systemctl is-enabled unattended-upgrades >/dev/null 2>&1";
+    }
+    else if (vuln.id == "APPARMOR_NOT_INSTALLED") {
+        return "! command -v apparmor_status >/dev/null 2>&1";
+    }
+    else if (vuln.id == "APPARMOR_INACTIVE") {
+        return "command -v apparmor_status >/dev/null 2>&1 && ! systemctl is-active apparmor >/dev/null 2>&1";
+    }
     else if (vuln.id == "SUDO_NOPASSWD") {
         return "grep -r 'NOPASSWD' /etc/sudoers /etc/sudoers.d/ 2>/dev/null";
     }
+    else if (vuln.id == "WEAK_FILE_PERMS") {
+        return "find /etc -name passwd -perm /022 -o -name shadow -perm /077 2>/dev/null | head -1";
+    }
     else if (vuln.id == "OLD_KERNEL") {
         return "apt list --upgradable 2>/dev/null | grep linux-image";
-    }
-    else if (vuln.id == "FTP_ANON_ENABLED") {
-        return "test -f /etc/vsftpd.conf && grep -i 'anonymous_enable=YES' /etc/vsftpd.conf";
-    }
-    else if (vuln.id == "UNATTENDED_UPGRADES_OFF") {
-        return "! systemctl is-enabled unattended-upgrades >/dev/null 2>&1 || systemctl is-enabled unattended-upgrades | grep -q disabled";
-    }
-    else if (vuln.id == "APPARMOR_DISABLED") {
-        return "! systemctl is-active apparmor >/dev/null 2>&1 || systemctl is-active apparmor | grep -q inactive";
-    }
-    else if (vuln.id == "DEFAULT_SSH_PORT") {
-        return "test -f /etc/ssh/sshd_config && (grep -i '^Port 22' /etc/ssh/sshd_config || ! grep -i '^Port' /etc/ssh/sshd_config)";
-    }
-    else if (vuln.id == "NO_FAIL2BAN") {
-        return "! systemctl is-active fail2ban >/dev/null 2>&1 || systemctl is-active fail2ban | grep -q inactive";
-    }
-    else if (vuln.id == "WEAK_FILE_PERMS") {
-        return "find /etc -name passwd -perm /022 -o -name shadow -perm /077 2>/dev/null";
     }
 #elif defined(__APPLE__)
     if (vuln.id == "GATEKEEPER_OFF") {
@@ -235,6 +238,33 @@ QString SystemChecker::getFixCommand(const VulnerabilityDefinition &vuln) const
     else if (vuln.id == "UFW_INACTIVE") {
         // Ativar UFW
         return "echo 'Ativando UFW...' && ufw --force enable && echo 'UFW ativado com sucesso!'";
+    }
+    else if (vuln.id == "SSH_DEFAULT_PORT") {
+        return "echo 'Configurando SSH na porta 2222...' && sed -i 's/^#Port 22/Port 2222/' /etc/ssh/sshd_config && sed -i 's/^Port 22/Port 2222/' /etc/ssh/sshd_config && systemctl restart sshd && echo 'SSH configurado na porta 2222'";
+    }
+    else if (vuln.id == "FAIL2BAN_NOT_INSTALLED") {
+        return "echo 'Instalando Fail2Ban...' && apt update && apt install -y fail2ban && echo 'Fail2Ban instalado com sucesso!'";
+    }
+    else if (vuln.id == "FAIL2BAN_INACTIVE") {
+        return "echo 'Ativando Fail2Ban...' && systemctl enable fail2ban && systemctl start fail2ban && echo 'Fail2Ban ativado com sucesso!'";
+    }
+    else if (vuln.id == "UNATTENDED_UPGRADES_OFF") {
+        return "echo 'Configurando atualizações automáticas...' && apt update && apt install -y unattended-upgrades && echo 'unattended-upgrades unattended-upgrades/enable_auto_updates boolean true' | debconf-set-selections && dpkg-reconfigure -f noninteractive unattended-upgrades && echo 'Atualizações automáticas configuradas!'";
+    }
+    else if (vuln.id == "APPARMOR_NOT_INSTALLED") {
+        return "echo 'Instalando AppArmor...' && apt update && apt install -y apparmor apparmor-utils && echo 'AppArmor instalado com sucesso!'";
+    }
+    else if (vuln.id == "APPARMOR_INACTIVE") {
+        return "echo 'Ativando AppArmor...' && systemctl enable apparmor && systemctl start apparmor && echo 'AppArmor ativado com sucesso!'";
+    }
+    else if (vuln.id == "SUDO_NOPASSWD") {
+        return "echo 'Removendo configurações NOPASSWD...' && sed -i '/NOPASSWD/d' /etc/sudoers && find /etc/sudoers.d/ -type f -exec sed -i '/NOPASSWD/d' {} \\; && echo 'Configurações NOPASSWD removidas!'";
+    }
+    else if (vuln.id == "WEAK_FILE_PERMS") {
+        return "echo 'Corrigindo permissões de arquivos...' && chmod 644 /etc/passwd && chmod 600 /etc/shadow && chmod 644 /etc/group && chmod 600 /etc/gshadow && echo 'Permissões corrigidas!'";
+    }
+    else if (vuln.id == "OLD_KERNEL") {
+        return "echo 'Atualizando sistema...' && apt update && apt upgrade -y && echo 'Sistema atualizado! Reinicie quando possível.'";
     }
 #endif
     

@@ -109,28 +109,76 @@ export const vulnerabilityDefinitions: VulnerabilityDefinitions = {
       "fix": "ufw --force enable"
     },
     {
-      "id": "SUDO_NOPASSWD",
-      "name": "Sudo sem senha",
-      "description": "Usuários sudo não precisam de senha.",
-      "impact": "Escalonamento fácil de privilégios.",
+      "id": "SSH_DEFAULT_PORT",
+      "name": "SSH na porta padrão 22",
+      "description": "SSH está usando a porta padrão 22.",
+      "impact": "Facilita ataques automatizados de força bruta.",
       "severity": "Alta",
-      "fix": "Remover entradas com NOPASSWD de /etc/sudoers"
+      "fix": "echo 'Configurando SSH na porta 2222...' && sed -i 's/^#Port 22/Port 2222/' /etc/ssh/sshd_config && sed -i 's/^Port 22/Port 2222/' /etc/ssh/sshd_config && systemctl restart sshd && echo 'SSH configurado na porta 2222'"
+    },
+    {
+      "id": "FAIL2BAN_NOT_INSTALLED",
+      "name": "Fail2Ban não instalado",
+      "description": "Fail2Ban não está instalado no sistema.",
+      "impact": "Sistema vulnerável a ataques de força bruta.",
+      "severity": "Alta",
+      "fix": "echo 'Instalando Fail2Ban...' && apt update && apt install -y fail2ban && echo 'Fail2Ban instalado com sucesso!'"
+    },
+    {
+      "id": "FAIL2BAN_INACTIVE",
+      "name": "Fail2Ban instalado mas inativo",
+      "description": "Fail2Ban está instalado mas não está ativo.",
+      "impact": "Proteção contra força bruta disponível mas não funcionando.",
+      "severity": "Alta",
+      "fix": "echo 'Ativando Fail2Ban...' && systemctl enable fail2ban && systemctl start fail2ban && echo 'Fail2Ban ativado com sucesso!'"
+    },
+    {
+      "id": "UNATTENDED_UPGRADES_OFF",
+      "name": "Atualizações automáticas não configuradas",
+      "description": "O sistema não está configurado para atualizações automáticas.",
+      "impact": "Falta de patches regulares.",
+      "severity": "Média",
+      "fix": "echo 'Configurando atualizações automáticas...' && apt update && apt install -y unattended-upgrades && echo 'unattended-upgrades unattended-upgrades/enable_auto_updates boolean true' | debconf-set-selections && dpkg-reconfigure -f noninteractive unattended-upgrades && echo 'Atualizações automáticas configuradas!'"
+    },
+    {
+      "id": "APPARMOR_NOT_INSTALLED",
+      "name": "AppArmor não instalado",
+      "description": "AppArmor não está instalado no sistema.",
+      "impact": "Sistema sem proteção adicional contra exploits.",
+      "severity": "Alta",
+      "fix": "echo 'Instalando AppArmor...' && apt update && apt install -y apparmor apparmor-utils && echo 'AppArmor instalado com sucesso!'"
+    },
+    {
+      "id": "APPARMOR_INACTIVE",
+      "name": "AppArmor instalado mas inativo",
+      "description": "AppArmor está instalado mas não está ativo.",
+      "impact": "Proteção contra exploits disponível mas não funcionando.",
+      "severity": "Alta",
+      "fix": "echo 'Ativando AppArmor...' && systemctl enable apparmor && systemctl start apparmor && echo 'AppArmor ativado com sucesso!'"
+    },
+    {
+      "id": "SUDO_NOPASSWD",
+      "name": "Sudo sem senha configurado",
+      "description": "Existem usuários sudo que não precisam de senha.",
+      "impact": "Escalonamento fácil de privilégios se conta for comprometida.",
+      "severity": "Alta",
+      "fix": "echo 'Removendo configurações NOPASSWD...' && sed -i '/NOPASSWD/d' /etc/sudoers && find /etc/sudoers.d/ -type f -exec sed -i '/NOPASSWD/d' {} \\; && echo 'Configurações NOPASSWD removidas!'"
+    },
+    {
+      "id": "WEAK_FILE_PERMS",
+      "name": "Permissões inseguras em arquivos do sistema",
+      "description": "Arquivos críticos com permissões incorretas.",
+      "impact": "Possível leitura ou modificação não autorizada.",
+      "severity": "Alta",
+      "fix": "echo 'Corrigindo permissões de arquivos...' && chmod 644 /etc/passwd && chmod 600 /etc/shadow && chmod 644 /etc/group && chmod 600 /etc/gshadow && echo 'Permissões corrigidas!'"
     },
     {
       "id": "OLD_KERNEL",
-      "name": "Kernel Desatualizado",
+      "name": "Kernel desatualizado",
       "description": "Versão do kernel não está atualizada.",
-      "impact": "Explorações conhecidas estão disponíveis.",
-      "severity": "Alta",
-      "fix": "apt update && apt upgrade -y && reboot"
-    },
-    {
-      "id": "FTP_ANON_ENABLED",
-      "name": "FTP com Anônimo Permitido",
-      "description": "Servidor FTP permite login anônimo.",
-      "impact": "Exposição de arquivos.",
-      "severity": "Alta",
-      "fix": "Desabilitar anon_login no vsftpd.conf"
+      "impact": "Explorações conhecidas podem estar disponíveis.",
+      "severity": "Média",
+      "fix": "echo 'Atualizando sistema...' && apt update && apt upgrade -y && echo 'Sistema atualizado! Reinicie quando possível.'"
     }
   ],
   "macos": [
