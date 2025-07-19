@@ -239,7 +239,7 @@ void LandingPage::createHeroSection(QVBoxLayout *parentLayout)
     heroTitle->setObjectName("heroTitle");
     heroTitle->setAlignment(Qt::AlignCenter);
     heroTitle->setWordWrap(true);
-    heroTitle->setMaximumWidth(800);
+    heroTitle->setMaximumWidth(1000);
     
     // Subtítulo
     QLabel *heroSubtitle = new QLabel(
@@ -249,7 +249,7 @@ void LandingPage::createHeroSection(QVBoxLayout *parentLayout)
     heroSubtitle->setObjectName("heroSubtitle");
     heroSubtitle->setAlignment(Qt::AlignCenter);
     heroSubtitle->setWordWrap(true);
-    heroSubtitle->setMaximumWidth(700);
+    heroSubtitle->setMaximumWidth(900);
     
     // Botão de ação principal
     QHBoxLayout *buttonLayout = new QHBoxLayout();
