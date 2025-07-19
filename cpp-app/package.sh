@@ -128,8 +128,8 @@ REQUISITOS:
 
 SUPORTE:
 ========
-- GitHub: https://github.com/seu-usuario/securitychecker
-- Issues: https://github.com/seu-usuario/securitychecker/issues
+- GitHub: https://github.com/jeanccoelho/secure-check
+- Issues: https://github.com/jeanccoelho/secure-check/issues
 
 LICENÇA:
 ========

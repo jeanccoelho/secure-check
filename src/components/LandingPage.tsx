@@ -16,7 +16,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
             <h1 className="text-2xl font-bold text-gray-900">SecureCheck</h1>
           </div>
           <a
-            href="https://github.com/seu-usuario/securecheck"
+            href="https://github.com/jeanccoelho/secure-check"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
@@ -163,7 +163,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
             </button>
           </div>
           <p className="mt-4 text-sm opacity-75">
-            Código fonte disponível no <a href="https://github.com/seu-usuario/securecheck" className="underline">GitHub</a>
+            Código fonte disponível no <a href="https://github.com/jeanccoelho/secure-check" className="underline">GitHub</a>
           </p>
         </div>
       </section>
@@ -179,7 +179,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
             Ferramenta open-source para verificação e correção de vulnerabilidades de segurança.
           </p>
           <div className="flex justify-center space-x-6">
-            <a href="https://github.com/seu-usuario/securecheck" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://github.com/jeanccoelho/secure-check" className="text-gray-400 hover:text-white transition-colors">
               GitHub
             </a>
             <a href="#" className="text-gray-400 hover:text-white transition-colors">

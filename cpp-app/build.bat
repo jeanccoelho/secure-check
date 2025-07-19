@@ -113,4 +113,3 @@ echo.
 echo ⚠️  Lembre-se: Execute como Administrador para funcionalidade completa!
 echo    (Clique com botão direito → "Executar como administrador")
 echo.
-pause

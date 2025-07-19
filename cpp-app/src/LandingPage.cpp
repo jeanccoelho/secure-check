@@ -169,11 +169,11 @@ void LandingPage::onStartScanClicked()
 
 void LandingPage::onGitHubClicked()
 {
-    QDesktopServices::openUrl(QUrl("https://github.com/seu-usuario/securitychecker"));
+    QDesktopServices::openUrl(QUrl("https://github.com/jeanccoelho/secure-check"));
 }
 
 void LandingPage::onDownloadClicked()
 {
     // Implementar lógica de download ou redirecionar para página de releases
-    QDesktopServices::openUrl(QUrl("https://github.com/seu-usuario/securitychecker/releases"));
+    QDesktopServices::openUrl(QUrl("https://github.com/jeanccoelho/secure-check/releases"));
 }

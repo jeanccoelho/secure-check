@@ -174,6 +174,6 @@ Esta ferramenta é fornecida "como está" sem garantias. Use por sua própria co
 
 ## Suporte
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/seu-usuario/securitychecker/issues)
-- 📖 **Documentação**: [Wiki](https://github.com/seu-usuario/securitychecker/wiki)
-- 💬 **Discussões**: [GitHub Discussions](https://github.com/seu-usuario/securitychecker/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/jeanccoelho/secure-check/issues)
+- 📖 **Documentação**: [Wiki](https://github.com/jeanccoelho/secure-check/wiki)
+- 💬 **Discussões**: [GitHub Discussions](https://github.com/jeanccoelho/secure-check/discussions)

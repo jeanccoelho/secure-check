@@ -71,7 +71,7 @@ void MainWindow::createMenuBar()
     
     QAction *githubAction = new QAction("&GitHub", this);
     connect(githubAction, &QAction::triggered, []() {
-        QDesktopServices::openUrl(QUrl("https://github.com/seu-usuario/securitychecker"));
+        QDesktopServices::openUrl(QUrl("https://github.com/jeanccoelho/secure-check"));
     });
     helpMenu->addAction(githubAction);
 }
@@ -107,7 +107,7 @@ void MainWindow::showAbout()
         "</ul>"
         "<p><b>Desenvolvido com:</b> Qt6, C++17</p>"
         "<p><b>Licença:</b> MIT License</p>"
-        "<p><a href='https://github.com/seu-usuario/securitychecker'>GitHub Repository</a></p>"
+        "<p><a href='https://github.com/jeanccoelho/secure-check'>GitHub Repository</a></p>"
     );
 }
 
