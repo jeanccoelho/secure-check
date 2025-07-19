@@ -1,11 +1,8 @@
 #include "LandingPage.h"
 #include <QDesktopServices>
 #include <QUrl>
-#include <QPixmap>
-#include <QIcon>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
-#include <QGraphicsDropShadowEffect>
 #include <QTimer>
 
 LandingPage::LandingPage(QWidget *parent)
@@ -15,7 +12,7 @@ LandingPage::LandingPage(QWidget *parent)
     setupUI();
     
     // Adicionar animação de entrada após a criação
-    QTimer::singleShot(100, this, &LandingPage::animateEntrance);
+    QTimer::singleShot(200, this, &LandingPage::animateEntrance);
 }
 
 void LandingPage::setupUI()
@@ -28,7 +25,7 @@ void LandingPage::setupUI()
     createHeader();
     createHeroSection();
     
-    // Aplicar estilos modernos
+    // Aplicar estilos modernos compatíveis com Qt
     setStyleSheet(R"(
         QWidget {
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
@@ -37,15 +34,14 @@ void LandingPage::setupUI()
         }
         
         QFrame#headerFrame {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 240);
             border: none;
             border-radius: 0px;
-            backdrop-filter: blur(10px);
         }
         
         QFrame#heroFrame {
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 rgba(74, 0, 224, 0.9), stop:1 rgba(142, 45, 226, 0.9));
+                stop:0 rgba(74, 0, 224, 230), stop:1 rgba(142, 45, 226, 230));
             border-radius: 24px;
             color: white;
             margin: 20px;
@@ -81,16 +77,15 @@ void LandingPage::setupUI()
         }
         
         QPushButton#githubButton {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 25);
             color: #2d3748;
-            border: 2px solid rgba(45, 55, 72, 0.1);
-            backdrop-filter: blur(10px);
+            border: 2px solid rgba(45, 55, 72, 25);
             font-weight: 600;
         }
         
         QPushButton#githubButton:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(45, 55, 72, 0.2);
+            background: rgba(255, 255, 255, 50);
+            border: 2px solid rgba(45, 55, 72, 50);
         }
         
         QLabel#logoLabel {
@@ -110,14 +105,12 @@ void LandingPage::setupUI()
             font-weight: 700;
             color: white;
             letter-spacing: -1px;
-            line-height: 1.2;
             font-family: "Segoe UI", sans-serif;
         }
         
         QLabel#subtitleLabel {
             font-size: 20px;
-            color: rgba(255, 255, 255, 0.95);
-            line-height: 1.6;
+            color: rgba(255, 255, 255, 240);
             font-weight: 400;
             font-family: "Segoe UI", sans-serif;
         }
@@ -136,17 +129,10 @@ void LandingPage::createHeader()
     headerFrame->setObjectName("headerFrame");
     headerFrame->setFixedHeight(90);
     
-    // Adicionar sombra ao header
-    QGraphicsDropShadowEffect *headerShadow = new QGraphicsDropShadowEffect();
-    headerShadow->setBlurRadius(20);
-    headerShadow->setColor(QColor(0, 0, 0, 30));
-    headerShadow->setOffset(0, 2);
-    headerFrame->setGraphicsEffect(headerShadow);
-    
     QHBoxLayout *headerLayout = new QHBoxLayout(headerFrame);
     headerLayout->setContentsMargins(40, 0, 40, 0);
     
-    // Logo e título com melhor tipografia
+    // Logo e título
     QHBoxLayout *logoLayout = new QHBoxLayout();
     logoLayout->setSpacing(12);
     
@@ -164,7 +150,7 @@ void LandingPage::createHeader()
     logoLayout->addWidget(versionLabel);
     logoLayout->addStretch();
     
-    // Botão GitHub melhorado
+    // Botão GitHub
     m_githubButton = new QPushButton("⭐ GitHub");
     m_githubButton->setObjectName("githubButton");
     m_githubButton->setToolTip("Ver projeto no GitHub - Dê uma estrela! ⭐");
@@ -184,25 +170,18 @@ void LandingPage::createHeroSection()
     m_heroFrame->setObjectName("heroFrame");
     m_heroFrame->setMinimumHeight(500);
     
-    // Adicionar sombra dramática ao hero
-    QGraphicsDropShadowEffect *heroShadow = new QGraphicsDropShadowEffect();
-    heroShadow->setBlurRadius(40);
-    heroShadow->setColor(QColor(0, 0, 0, 50));
-    heroShadow->setOffset(0, 10);
-    m_heroFrame->setGraphicsEffect(heroShadow);
-    
     QVBoxLayout *heroLayout = new QVBoxLayout(m_heroFrame);
     heroLayout->setContentsMargins(60, 80, 60, 80);
     heroLayout->setAlignment(Qt::AlignCenter);
     heroLayout->setSpacing(30);
     
-    // Título principal mais impactante
+    // Título principal
     QLabel *titleLabel = new QLabel("Proteja seu sistema\ncom um clique");
     titleLabel->setObjectName("titleLabel");
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setWordWrap(true);
     
-    // Subtítulo melhorado
+    // Subtítulo
     QLabel *subtitleLabel = new QLabel(
         "SecureFix é uma ferramenta open-source que verifica e corrige automaticamente\n"
         "vulnerabilidades de segurança em sistemas Windows, Linux e macOS."
@@ -212,7 +191,7 @@ void LandingPage::createHeroSection()
     subtitleLabel->setWordWrap(true);
     subtitleLabel->setMaximumWidth(700);
     
-    // Botão de ação principal melhorado
+    // Botão de ação principal
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->setAlignment(Qt::AlignCenter);
     
@@ -221,13 +200,6 @@ void LandingPage::createHeroSection()
     m_startScanButton->setCursor(Qt::PointingHandCursor);
     m_startScanButton->setToolTip("Começar verificação de segurança do sistema");
     connect(m_startScanButton, &QPushButton::clicked, this, &LandingPage::onStartScanClicked);
-    
-    // Adicionar sombra ao botão
-    QGraphicsDropShadowEffect *buttonShadow = new QGraphicsDropShadowEffect();
-    buttonShadow->setBlurRadius(20);
-    buttonShadow->setColor(QColor(0, 0, 0, 40));
-    buttonShadow->setOffset(0, 8);
-    m_startScanButton->setGraphicsEffect(buttonShadow);
     
     buttonLayout->addWidget(m_startScanButton);
     
@@ -243,61 +215,27 @@ void LandingPage::createHeroSection()
 
 void LandingPage::animateEntrance()
 {
-    // Animação de entrada suave para o hero frame
-    QPropertyAnimation *heroAnimation = new QPropertyAnimation(m_heroFrame, "geometry");
-    heroAnimation->setDuration(800);
-    
-    QRect currentGeometry = m_heroFrame->geometry();
-    QRect startGeometry = currentGeometry;
-    startGeometry.moveTop(startGeometry.top() + 50);
-    
-    m_heroFrame->setGeometry(startGeometry);
-    
-    heroAnimation->setStartValue(startGeometry);
-    heroAnimation->setEndValue(currentGeometry);
-    heroAnimation->setEasingCurve(QEasingCurve::OutCubic);
-    
-    // Animação de opacidade
-    QGraphicsOpacityEffect *opacityEffect = new QGraphicsOpacityEffect();
-    m_heroFrame->setGraphicsEffect(opacityEffect);
-    
-    QPropertyAnimation *opacityAnimation = new QPropertyAnimation(opacityEffect, "opacity");
-    opacityAnimation->setDuration(800);
+    // Animação simples de opacidade para o hero frame
+    QPropertyAnimation *opacityAnimation = new QPropertyAnimation(this, "windowOpacity");
+    opacityAnimation->setDuration(600);
     opacityAnimation->setStartValue(0.0);
     opacityAnimation->setEndValue(1.0);
     opacityAnimation->setEasingCurve(QEasingCurve::OutCubic);
-    
-    heroAnimation->start(QAbstractAnimation::DeleteWhenStopped);
     opacityAnimation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void LandingPage::onStartScanClicked()
 {
-    // Animação de feedback no botão
-    QPropertyAnimation *buttonAnimation = new QPropertyAnimation(m_startScanButton, "geometry");
-    buttonAnimation->setDuration(150);
+    // Feedback visual simples
+    m_startScanButton->setEnabled(false);
+    m_startScanButton->setText("Iniciando...");
     
-    QRect currentGeometry = m_startScanButton->geometry();
-    QRect pressedGeometry = currentGeometry;
-    pressedGeometry.adjust(2, 2, -2, -2);
-    
-    buttonAnimation->setStartValue(currentGeometry);
-    buttonAnimation->setEndValue(pressedGeometry);
-    buttonAnimation->setEasingCurve(QEasingCurve::OutCubic);
-    
-    // Voltar ao tamanho original
-    QPropertyAnimation *buttonAnimationBack = new QPropertyAnimation(m_startScanButton, "geometry");
-    buttonAnimationBack->setDuration(150);
-    buttonAnimationBack->setStartValue(pressedGeometry);
-    buttonAnimationBack->setEndValue(currentGeometry);
-    buttonAnimationBack->setEasingCurve(QEasingCurve::OutCubic);
-    
-    connect(buttonAnimation, &QPropertyAnimation::finished, [=]() {
-        buttonAnimationBack->start(QAbstractAnimation::DeleteWhenStopped);
+    // Restaurar após um breve delay
+    QTimer::singleShot(300, [this]() {
+        m_startScanButton->setEnabled(true);
+        m_startScanButton->setText("🛡️ Iniciar Verificação");
         emit startScanRequested();
     });
-    
-    buttonAnimation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void LandingPage::onGitHubClicked()
