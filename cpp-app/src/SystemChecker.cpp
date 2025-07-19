@@ -36,12 +36,7 @@ void SystemChecker::checkVulnerability(const VulnerabilityDefinition &vuln)
     
     QString command = getCheckCommand(vuln);
     if (command.isEmpty()) {
-        // Simular verificação para comandos não implementados
-        QTimer::singleShot(1000, this, [this]() {
-            // Simular resultado aleatório para demonstração
-            bool isVulnerable = (QRandomGenerator::global()->bounded(100)) > 40; // 60% chance de ser vulnerável
-            emit checkCompleted(m_currentCheckId, isVulnerable);
-        });
+        emit errorOccurred("Comando de verificação não implementado para esta vulnerabilidade");
         return;
     }
     
@@ -67,12 +62,7 @@ void SystemChecker::fixVulnerability(const VulnerabilityDefinition &vuln)
     
     QString command = getFixCommand(vuln);
     if (command.isEmpty()) {
-        // Simular correção para comandos não implementados
-        QTimer::singleShot(2000, this, [this]() {
-            // Simular sucesso na maioria dos casos (80% de sucesso)
-            bool success = (QRandomGenerator::global()->bounded(100)) < 80;
-            emit fixCompleted(m_currentFixId, success);
-        });
+        emit errorOccurred("Comando de correção não implementado para esta vulnerabilidade");
         return;
     }
     
@@ -107,9 +97,10 @@ void SystemChecker::onCheckProcessFinished(int exitCode, QProcess::ExitStatus ex
         return;
     }
     
-    // Interpretar código de saída
-    // 0 = seguro, 1 = vulnerável, outros = erro
-    bool isVulnerable = (exitCode == 1);
+    // Interpretar código de saída:
+    // 0 = comando encontrou algo (vulnerável)
+    // 1 = comando não encontrou nada (seguro)
+    bool isVulnerable = (exitCode == 0);
     emit checkCompleted(m_currentCheckId, isVulnerable);
 }
 
@@ -127,56 +118,104 @@ void SystemChecker::onFixProcessFinished(int exitCode, QProcess::ExitStatus exit
 
 QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) const
 {
-    // Implementar comandos específicos de verificação para cada vulnerabilidade
+    // Comandos reais de verificação para cada vulnerabilidade
     
 #ifdef _WIN32
     if (vuln.id == "UAC_DISABLED") {
-        return "reg query \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v EnableLUA";
+        return "reg query \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v EnableLUA | findstr \"0x0\"";
     }
     else if (vuln.id == "FIREWALL_DISABLED") {
-        return "netsh advfirewall show allprofiles state";
+        return "netsh advfirewall show allprofiles state | findstr \"OFF\"";
     }
     else if (vuln.id == "SMB1_ENABLED") {
-        return "powershell \"Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol\"";
+        return "powershell \"Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol | Where-Object {$_.State -eq 'Enabled'}\"";
+    }
+    else if (vuln.id == "AUTORUN_ENABLED") {
+        return "reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoDriveTypeAutoRun | findstr \"0x\"";
     }
     else if (vuln.id == "WINDOWS_UPDATE_DISABLED") {
-        return "sc query wuauserv";
+        return "sc query wuauserv | findstr \"STOPPED\"";
+    }
+    else if (vuln.id == "RDP_PORT_OPEN") {
+        return "netstat -an | findstr \":3389\"";
     }
     else if (vuln.id == "ADMIN_USER_DEFAULT") {
-        return "net user Administrator";
+        return "net user Administrator | findstr \"Account active.*Yes\"";
+    }
+    else if (vuln.id == "MACROS_ENABLED") {
+        return "reg query \"HKCU\\Software\\Microsoft\\Office\\16.0\\Excel\\Security\" /v VBAWarnings | findstr \"0x1\"";
     }
     else if (vuln.id == "ANTIVIRUS_DISABLED") {
-        return "powershell \"Get-MpPreference | Select-Object DisableRealtimeMonitoring\"";
+        return "powershell \"Get-MpPreference | Where-Object {$_.DisableRealtimeMonitoring -eq $true}\"";
     }
     else if (vuln.id == "GUEST_ACCOUNT_ENABLED") {
-        return "net user Guest";
+        return "net user Guest | findstr \"Account active.*Yes\"";
     }
 #elif defined(__linux__)
     if (vuln.id == "SSH_ROOT_LOGIN") {
-        return "grep -i PermitRootLogin /etc/ssh/sshd_config";
+        return "grep -i \"^PermitRootLogin yes\" /etc/ssh/sshd_config";
     }
     else if (vuln.id == "NO_FIREWALL") {
-        return "ufw status";
+        return "ufw status | grep -i \"Status: inactive\"";
     }
     else if (vuln.id == "SUDO_NOPASSWD") {
-        return "grep NOPASSWD /etc/sudoers";
+        return "grep -r \"NOPASSWD\" /etc/sudoers /etc/sudoers.d/";
     }
     else if (vuln.id == "OLD_KERNEL") {
-        return "apt list --upgradable | grep linux-image";
+        return "apt list --upgradable 2>/dev/null | grep linux-image";
+    }
+    else if (vuln.id == "FTP_ANON_ENABLED") {
+        return "grep -i \"anonymous_enable=YES\" /etc/vsftpd.conf";
+    }
+    else if (vuln.id == "UNATTENDED_UPGRADES_OFF") {
+        return "systemctl is-enabled unattended-upgrades | grep disabled";
+    }
+    else if (vuln.id == "APPARMOR_DISABLED") {
+        return "systemctl is-active apparmor | grep inactive";
+    }
+    else if (vuln.id == "DEFAULT_SSH_PORT") {
+        return "grep -i \"^Port 22\" /etc/ssh/sshd_config";
+    }
+    else if (vuln.id == "NO_FAIL2BAN") {
+        return "systemctl is-active fail2ban | grep inactive";
+    }
+    else if (vuln.id == "WEAK_FILE_PERMS") {
+        return "find /etc -name passwd -perm /022 -o -name shadow -perm /077";
     }
 #elif defined(__APPLE__)
     if (vuln.id == "GATEKEEPER_OFF") {
-        return "spctl --status";
+        return "spctl --status | grep \"assessments disabled\"";
     }
     else if (vuln.id == "FIREWALL_OFF") {
-        return "/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate";
+        return "/usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate | grep \"Firewall is disabled\"";
     }
     else if (vuln.id == "NO_FILEVAULT") {
-        return "fdesetup status";
+        return "fdesetup status | grep \"FileVault is Off\"";
+    }
+    else if (vuln.id == "AUTOMOUNT_USB") {
+        return "defaults read /Library/Preferences/SystemConfiguration/autodiskmount AutomountDisksWithoutUserLogin | grep 1";
+    }
+    else if (vuln.id == "ICLOUD_BACKUP_ON") {
+        return "defaults read ~/Library/Preferences/MobileMeAccounts Accounts | grep Documents";
+    }
+    else if (vuln.id == "UNKNOWN_EXTENSIONS_ENABLED") {
+        return "spctl --list | grep \"unknown\"";
+    }
+    else if (vuln.id == "NO_PASSWORD_SLEEP") {
+        return "defaults read com.apple.screensaver askForPassword | grep 0";
+    }
+    else if (vuln.id == "SHARING_SERVICES_ON") {
+        return "launchctl list | grep com.apple.sharing";
+    }
+    else if (vuln.id == "SIP_DISABLED") {
+        return "csrutil status | grep disabled";
+    }
+    else if (vuln.id == "REMOTE_LOGIN_ENABLED") {
+        return "systemsetup -getremotelogin | grep On";
     }
 #endif
     
-    return QString(); // Comando não implementado - usar simulação
+    return QString(); // Comando não implementado
 }
 
 QString SystemChecker::getFixCommand(const VulnerabilityDefinition &vuln) const
@@ -190,6 +229,8 @@ bool SystemChecker::executeCommand(const QString &command, QProcess *process)
     if (command.isEmpty() || !process) {
         return false;
     }
+    
+    qDebug() << "Executando comando:" << command;
     
 #ifdef _WIN32
     if (command.startsWith("powershell")) {
