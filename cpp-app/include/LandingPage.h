@@ -28,15 +28,8 @@ private:
     void setupUI();
     void createHeader();
     void createHeroSection();
-    void createFeaturesSection();
-    void createHowItWorksSection();
-    void createSupportedSystemsSection();
-    void createDownloadSection();
-    void createFooter();
     
     QVBoxLayout *m_mainLayout;
-    QScrollArea *m_scrollArea;
-    QWidget *m_contentWidget;
     
     QPushButton *m_startScanButton;
     QPushButton *m_githubButton;
