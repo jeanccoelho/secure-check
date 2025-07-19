@@ -185,7 +185,7 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
         return "grep -r 'NOPASSWD' /etc/sudoers /etc/sudoers.d/ 2>/dev/null";
     }
     else if (vuln.id == "WEAK_FILE_PERMS") {
-        return "find /etc -name passwd -perm /022 -o -name shadow -perm /077 2>/dev/null | head -1";
+        return "find /etc -name passwd ! -perm 644 -o -name shadow ! -perm 600 -o -name group ! -perm 644 -o -name gshadow ! -perm 600 2>/dev/null | head -1";
     }
     else if (vuln.id == "OLD_KERNEL") {
         return "apt list --upgradable 2>/dev/null | grep linux-image";
