@@ -1,5 +1,6 @@
 import React from 'react';
-import { Shield, Github, Download, CheckCircle, AlertTriangle, Lock } from 'lucide-react';
+import { Shield, Github, Download, CheckCircle, AlertTriangle, Lock, Monitor, Terminal, Apple } from 'lucide-react';
+import { vulnerabilityDefinitions } from '../data/vulnerabilities';
 
 interface LandingPageProps {
   onStartScan: () => void;
@@ -122,23 +123,100 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
         </div>
 
         {/* Supported Systems */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16" id="sistemas">
           <h3 className="text-3xl font-bold mb-8">Sistemas Suportados</h3>
+          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+            Cada sistema possui verificações específicas adaptadas às suas características de segurança
+          </p>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h4 className="text-xl font-semibold mb-3">Windows</h4>
-              <p className="text-gray-600 mb-4">10 verificações de segurança incluindo UAC, Firewall, SMBv1 e mais.</p>
-              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">10 verificações</span>
+            {/* Windows Card */}
+            <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+              <div className="text-center mb-6">
+                <Monitor className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                <h4 className="text-2xl font-bold mb-2">Windows</h4>
+                <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">
+                  {vulnerabilityDefinitions.windows.length} verificações
+                </span>
+              </div>
+              
+              <div className="space-y-3 mb-8">
+                {vulnerabilityDefinitions.windows.slice(0, 5).map((vuln, index) => (
+                  <div key={index} className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="truncate">{vuln.name}</span>
+                  </div>
+                ))}
+                {vulnerabilityDefinitions.windows.length > 5 && (
+                  <div className="text-sm text-gray-500 italic">
+                    +{vulnerabilityDefinitions.windows.length - 5} verificações adicionais
+                  </div>
+                )}
+              </div>
+              
+              <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+                <Download className="h-5 w-5" />
+                <span>Download Windows</span>
+              </button>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h4 className="text-xl font-semibold mb-3">Linux</h4>
-              <p className="text-gray-600 mb-4">5 verificações essenciais incluindo SSH, Firewall, Sudo e kernel.</p>
-              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">5 verificações</span>
+            
+            {/* Linux Card */}
+            <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+              <div className="text-center mb-6">
+                <Terminal className="h-16 w-16 text-green-600 mx-auto mb-4" />
+                <h4 className="text-2xl font-bold mb-2">Linux</h4>
+                <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
+                  {vulnerabilityDefinitions.linux.length} verificações
+                </span>
+              </div>
+              
+              <div className="space-y-3 mb-8">
+                {vulnerabilityDefinitions.linux.slice(0, 5).map((vuln, index) => (
+                  <div key={index} className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="truncate">{vuln.name}</span>
+                  </div>
+                ))}
+                {vulnerabilityDefinitions.linux.length > 5 && (
+                  <div className="text-sm text-gray-500 italic">
+                    +{vulnerabilityDefinitions.linux.length - 5} verificações adicionais
+                  </div>
+                )}
+              </div>
+              
+              <button className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+                <Download className="h-5 w-5" />
+                <span>Download Linux</span>
+              </button>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h4 className="text-xl font-semibold mb-3">macOS</h4>
-              <p className="text-gray-600 mb-4">3 verificações principais incluindo Gatekeeper, Firewall e FileVault.</p>
-              <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">3 verificações</span>
+            
+            {/* macOS Card */}
+            <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+              <div className="text-center mb-6">
+                <Apple className="h-16 w-16 text-purple-600 mx-auto mb-4" />
+                <h4 className="text-2xl font-bold mb-2">macOS</h4>
+                <span className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold">
+                  {vulnerabilityDefinitions.macos.length} verificações
+                </span>
+              </div>
+              
+              <div className="space-y-3 mb-8">
+                {vulnerabilityDefinitions.macos.slice(0, 5).map((vuln, index) => (
+                  <div key={index} className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <span className="truncate">{vuln.name}</span>
+                  </div>
+                ))}
+                {vulnerabilityDefinitions.macos.length > 5 && (
+                  <div className="text-sm text-gray-500 italic">
+                    +{vulnerabilityDefinitions.macos.length - 5} verificações adicionais
+                  </div>
+                )}
+              </div>
+              
+              <button className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2">
+                <Download className="h-5 w-5" />
+                <span>Download macOS</span>
+              </button>
             </div>
           </div>
         </div>
