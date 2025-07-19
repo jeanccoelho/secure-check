@@ -45,13 +45,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
               <Shield className="h-6 w-6" />
               <span>Iniciar Verificação</span>
             </button>
-            <a
-              href="#download"
-              className="bg-white text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 transition-colors flex items-center space-x-2"
-            >
-              <Download className="h-6 w-6" />
-              <span>Download</span>
-            </a>
           </div>
         </div>
 
