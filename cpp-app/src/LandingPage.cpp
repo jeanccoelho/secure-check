@@ -136,8 +136,8 @@ void LandingPage::setupUI()
         }
         
         QLabel#logoIcon {
-            font-size: 32px;
-            color: #2563eb;
+            font-size: 28px;
+            color: #1f2937;
         }
         
         QLabel#appNameLabel {
