@@ -87,3 +87,4 @@ Thumbs.db
 *.dmg
 *.pkg
 *.msi
+.env
