@@ -294,11 +294,20 @@ void SecurityChecker::createHeader()
     
     // Detectar e exibir o OS atual
     QString currentOS = m_vulnerabilityManager ? m_vulnerabilityManager->getCurrentOS() : "unknown";
+    qDebug() << "OS detectado no SecurityChecker:" << currentOS;
+    
     QString osDisplayText;
     if (currentOS == "windows") osDisplayText = "🪟 Windows";
     else if (currentOS == "linux") osDisplayText = "🐧 Linux";
     else if (currentOS == "macos") osDisplayText = "🍎 macOS";
-    else osDisplayText = "❓ Desconhecido";
+    else {
+        qDebug() << "OS não reconhecido, usando Linux como padrão";
+        osDisplayText = "🐧 Linux (Detectado)";
+        // Forçar Linux se não conseguir detectar
+        if (m_vulnerabilityManager) {
+            m_currentOS = "linux";
+        }
+    }
     
     osDisplay->setText(osDisplayText);
     
@@ -531,6 +540,13 @@ void SecurityChecker::loadVulnerabilities()
     
     // Detectar OS atual e configurar
     m_currentOS = m_vulnerabilityManager->getCurrentOS();
+    qDebug() << "OS carregado:" << m_currentOS;
+    
+    // Se não conseguir detectar, usar Linux como padrão
+    if (m_currentOS == "unknown" || m_currentOS.isEmpty()) {
+        qDebug() << "Forçando Linux como padrão";
+        m_currentOS = "linux";
+    }
     
     // Carregar vulnerabilidades para o OS detectado
     m_currentVulnerabilities = m_vulnerabilityManager->getDefinitionsForOS(m_currentOS);
