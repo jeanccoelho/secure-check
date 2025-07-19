@@ -167,6 +167,7 @@ void LandingPage::setupUI()
         QLabel#featureIcon {
             font-size: 48px;
             margin-bottom: 16px;
+            background-color: white;
         }
         
         QLabel#featureTitle {
@@ -174,12 +175,14 @@ void LandingPage::setupUI()
             font-weight: 600;
             color: #1f2937;
             margin-bottom: 12px;
+            background-color: white;
         }
         
         QLabel#featureDescription {
             font-size: 14px;
             color: #6b7280;
             line-height: 1.5;
+            background-color: white;
         }
     )");
 }
