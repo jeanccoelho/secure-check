@@ -1182,3 +1182,43 @@ QString SecurityChecker::getStatusColor(CheckStatus status) const
         default: return "#6b7280";
     }
 }
+
+void SecurityChecker::updateOSDisplay()
+{
+    if (!m_vulnerabilityManager) {
+        qDebug() << "VulnerabilityManager não inicializado, mantendo 'Detectando...'";
+        return;
+    }
+    
+    QString currentOS = m_vulnerabilityManager->getCurrentOS();
+    QString prettyName = QSysInfo::prettyProductName();
+    
+    qDebug() << "=== ATUALIZANDO DISPLAY DO OS ===";
+    qDebug() << "OS detectado:" << currentOS;
+    qDebug() << "Pretty name:" << prettyName;
+    
+    QString emoji;
+    QString osName;
+    
+    if (currentOS == "linux") {
+        emoji = "🐧";
+        osName = "Linux";
+    } else if (currentOS == "windows") {
+        emoji = "🪟";
+        osName = "Windows";
+    } else if (currentOS == "macos") {
+        emoji = "🍎";
+        osName = "macOS";
+    } else {
+        emoji = "❓";
+        osName = "Sistema Desconhecido";
+    }
+    
+    QString displayText = QString("%1 %2\n%3").arg(emoji, osName, prettyName);
+    
+    qDebug() << "Texto final do display:" << displayText;
+    
+    m_osDisplay->setText(displayText);
+    
+    qDebug() << "Display atualizado com sucesso!";
+}
