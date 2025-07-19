@@ -35,6 +35,9 @@ void SecurityChecker::setupUI()
     m_mainLayout->setContentsMargins(0, 0, 0, 0);
     m_mainLayout->setSpacing(0);
     
+    // Forçar fundo branco no widget principal
+    setStyleSheet("SecurityChecker { background-color: white; }");
+    
     createHeader();
     createProgressSection();
     createCheckSection();
@@ -43,19 +46,27 @@ void SecurityChecker::setupUI()
     
     // Aplicar estilos modernos similares à versão web
     setStyleSheet(R"(
-        QWidget {
-            background: #f9fafb;
+        SecurityChecker, SecurityChecker QWidget {
+            background: white;
+            background-color: white;
             font-family: "Segoe UI", "Roboto", "Inter", sans-serif;
+        }
+        
+        SecurityChecker {
+            background: white;
+            background-color: white;
         }
         
         QFrame#headerFrame {
             background: white;
+            background-color: white;
             border: none;
             border-bottom: 1px solid #e5e7eb;
         }
         
         QFrame#progressFrame {
             background: white;
+            background-color: white;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             margin: 8px;
@@ -63,6 +74,7 @@ void SecurityChecker::setupUI()
         
         QFrame#checkFrame {
             background: white;
+            background-color: white;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             margin: 8px;
@@ -70,6 +82,7 @@ void SecurityChecker::setupUI()
         
         QFrame#resultFrame {
             background: white;
+            background-color: white;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             margin: 8px;
@@ -77,6 +90,7 @@ void SecurityChecker::setupUI()
         
         QFrame#resultsFrame {
             background: white;
+            background-color: white;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             margin: 8px;
@@ -850,85 +864,112 @@ void SecurityChecker::showResults()
         }
     }
     
-    // Grid de estatísticas - 4 colunas responsivas
-    QGridLayout *statsGrid = new QGridLayout();
-    statsGrid->setSpacing(16);
+    // === SEÇÃO DE ESTATÍSTICAS ===
+    // Container para estatísticas com layout horizontal
+    QHBoxLayout *statsLayout = new QHBoxLayout();
+    statsLayout->setSpacing(20);
+    statsLayout->setAlignment(Qt::AlignCenter);
     
-    auto createStatCard = [](const QString &number, const QString &label, const QString &bgColor, const QString &textColor = "white") {
+    auto createStatCard = [](const QString &number, const QString &label, const QString &bgColor) {
         QFrame *card = new QFrame();
+        card->setFixedSize(180, 120);
         card->setStyleSheet(QString(
             "QFrame { "
             "background: %1; "
             "border-radius: 12px; "
             "border: none; "
-            "padding: 24px; "
-            "min-height: 100px; "
-            "max-height: 120px; "
             "}"
         ).arg(bgColor));
         
-        QVBoxLayout *cardLayout = new QVBoxLayout(card);
-        cardLayout->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
-        cardLayout->setSpacing(8);
-        cardLayout->setContentsMargins(16, 20, 16, 20);
+        QVBoxLayout *layout = new QVBoxLayout(card);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+        layout->setAlignment(Qt::AlignCenter);
         
         QLabel *numLabel = new QLabel(number);
-        numLabel->setStyleSheet(QString(
-            "font-size: 32px; "
+        numLabel->setStyleSheet(
+            "font-size: 36px; "
             "font-weight: 700; "
-            "color: %1; "
+            "color: white; "
             "background: transparent; "
-            "border: none; "
-            "text-align: center;"
-        ).arg(textColor));
+            "border: none;"
+        );
         numLabel->setAlignment(Qt::AlignCenter);
         
         QLabel *textLabel = new QLabel(label);
-        textLabel->setStyleSheet(QString(
-            "font-size: 14px; "
-            "color: %1; "
+        textLabel->setStyleSheet(
+            "font-size: 13px; "
+            "color: rgba(255, 255, 255, 0.9); "
             "background: transparent; "
             "font-weight: 600; "
-            "border: none; "
-            "text-align: center;"
-        ).arg(textColor == "white" ? "rgba(255, 255, 255, 0.9)" : textColor));
+            "border: none;"
+        );
         textLabel->setAlignment(Qt::AlignCenter);
         textLabel->setWordWrap(true);
         
-        cardLayout->addWidget(numLabel);
-        cardLayout->addWidget(textLabel);
+        layout->addWidget(numLabel);
+        layout->addWidget(textLabel);
         
         return card;
     };
     
     // Adicionar cards de estatísticas
-    statsGrid->addWidget(createStatCard(QString::number(total), "Total de\nVerificações", "#3b82f6"), 0, 0);
-    statsGrid->addWidget(createStatCard(QString::number(vulnerable + skipped), "Vulnerabilidades\nEncontradas", "#ef4444"), 0, 1);
-    statsGrid->addWidget(createStatCard(QString::number(fixed), "Corrigidas", "#10b981"), 0, 2);
-    statsGrid->addWidget(createStatCard(QString::number(skipped), "Ignoradas", "#6b7280"), 0, 3);
+    statsLayout->addWidget(createStatCard(QString::number(total), "Total de\nVerificações", "#3b82f6"));
+    statsLayout->addWidget(createStatCard(QString::number(vulnerable + skipped), "Vulnerabilidades\nEncontradas", "#ef4444"));
+    statsLayout->addWidget(createStatCard(QString::number(fixed), "Corrigidas", "#10b981"));
+    statsLayout->addWidget(createStatCard(QString::number(skipped), "Ignoradas", "#6b7280"));
     
-    // Configurar colunas para serem iguais
-    for (int i = 0; i < 4; i++) {
-        statsGrid->setColumnStretch(i, 1);
-    }
+    m_resultsLayout->addLayout(statsLayout);
+    m_resultsLayout->addSpacing(40);
     
-    m_resultsLayout->addLayout(statsGrid);
-    m_resultsLayout->addSpacing(32);
-    
-    // Só mostrar detalhes se houver resultados para mostrar
+    // === LISTA DETALHADA DE VERIFICAÇÕES ===
     if (!m_checkResults.isEmpty()) {
-        // Lista detalhada de resultados
-        QLabel *detailsTitle = new QLabel("Detalhes das Verificações");
+        QLabel *detailsTitle = new QLabel("📋 Detalhes das Verificações");
         detailsTitle->setStyleSheet(
-            "font-size: 20px; "
-            "font-weight: 600; "
+            "font-size: 22px; "
+            "font-weight: 700; "
             "color: #1f2937; "
-            "background: white; "
-            "margin-bottom: 16px;"
+            "background: transparent; "
+            "border: none; "
+            "margin: 0px; "
+            "padding: 0px;"
         );
+        detailsTitle->setAlignment(Qt::AlignCenter);
         m_resultsLayout->addWidget(detailsTitle);
-        m_resultsLayout->addSpacing(16);
-    
+        m_resultsLayout->addSpacing(20);
+        
+        // Scroll area para a lista de verificações
+        QScrollArea *scrollArea = new QScrollArea();
+        scrollArea->setWidgetResizable(true);
+        scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        scrollArea->setMaximumHeight(300);
+        scrollArea->setStyleSheet(
+            "QScrollArea { "
+            "border: 1px solid #e5e7eb; "
+            "border-radius: 8px; "
+            "background: white; "
+            "} "
+            "QScrollBar:vertical { "
+            "background: #f3f4f6; "
+            "width: 8px; "
+            "border-radius: 4px; "
+            "} "
+            "QScrollBar::handle:vertical { "
+            "background: #d1d5db; "
+            "border-radius: 4px; "
+            "min-height: 20px; "
+            "} "
+            "QScrollBar::handle:vertical:hover { "
+            "background: #9ca3af; "
+            "}"
+        );
+        
+        QWidget *scrollWidget = new QWidget();
+        QVBoxLayout *scrollLayout = new QVBoxLayout(scrollWidget);
+        scrollLayout->setContentsMargins(16, 16, 16, 16);
+        scrollLayout->setSpacing(12);
+        
         for (const auto &result : m_checkResults) {
             const VulnerabilityDefinition *vuln = nullptr;
             for (const auto &v : m_currentVulnerabilities) {
@@ -937,36 +978,37 @@ void SecurityChecker::showResults()
                     break;
                 }
             }
-        
+            
             if (!vuln) continue;
-        
+            
             QFrame *resultCard = new QFrame();
             resultCard->setStyleSheet(
                 "QFrame { "
-                "background: white; "
+                "background: #f9fafb; "
                 "border: 1px solid #e5e7eb; "
-                "border-radius: 12px; "
-                "padding: 20px; "
-                "margin: 4px; "
+                "border-radius: 8px; "
+                "padding: 0px; "
+                "margin: 0px; "
                 "} "
                 "QFrame:hover { "
                 "border-color: #d1d5db; "
+                "background: #f3f4f6; "
                 "}"
             );
-        
+            
             QHBoxLayout *cardLayout = new QHBoxLayout(resultCard);
-            cardLayout->setSpacing(16);
-            cardLayout->setContentsMargins(20, 16, 20, 16);
-        
+            cardLayout->setContentsMargins(16, 12, 16, 12);
+            cardLayout->setSpacing(12);
+            
             // Ícone de status
             QLabel *statusIcon = new QLabel();
-            statusIcon->setStyleSheet("font-size: 32px; background: transparent; border: none;");
-            statusIcon->setFixedSize(40, 40);
+            statusIcon->setStyleSheet("font-size: 24px; background: transparent; border: none;");
+            statusIcon->setFixedSize(32, 32);
             statusIcon->setAlignment(Qt::AlignCenter);
-        
+            
             QString statusText;
             QString statusColor;
-        
+            
             switch (result.status) {
                 case CheckStatus::Vulnerable:
                     statusIcon->setText("⚠️");
@@ -994,42 +1036,21 @@ void SecurityChecker::showResults()
                     statusColor = "#6b7280";
                     break;
             }
-        
-            // Informações da vulnerabilidade
-            QVBoxLayout *infoLayout = new QVBoxLayout();
-            infoLayout->setSpacing(8);
-        
+            
+            // Nome da vulnerabilidade
             QLabel *nameLabel = new QLabel(vuln->name);
             nameLabel->setStyleSheet(
                 "font-weight: 600; "
-                "font-size: 16px; "
+                "font-size: 15px; "
                 "color: #1f2937; "
                 "background: transparent; "
                 "border: none;"
             );
-        
-            QLabel *descLabel = new QLabel(vuln->description);
-            descLabel->setStyleSheet(
-                "color: #6b7280; "
-                "font-size: 14px; "
-                "background: transparent; "
-                "border: none; "
-                "line-height: 1.4;"
-            );
-            descLabel->setWordWrap(true);
-        
-            infoLayout->addWidget(nameLabel);
-            infoLayout->addWidget(descLabel);
-        
-            // Status e severidade
-            QVBoxLayout *statusLayout = new QVBoxLayout();
-            statusLayout->setAlignment(Qt::AlignTop | Qt::AlignRight);
-            statusLayout->setSpacing(8);
-        
+            
             // Badge de severidade
             QString severityText = vuln->severity == Severity::Alta ? "Alta" :
                                   vuln->severity == Severity::Media ? "Média" : "Baixa";
-        
+            
             QString severityBg, severityColor;
             switch (vuln->severity) {
                 case Severity::Alta:
@@ -1045,49 +1066,70 @@ void SecurityChecker::showResults()
                     severityColor = "#ca8a04";
                     break;
             }
-        
+            
             QLabel *severityLabel = new QLabel(severityText);
             severityLabel->setStyleSheet(QString(
                 "background: %1; "
                 "color: %2; "
-                "padding: 6px 12px; "
-                "border-radius: 16px; "
+                "padding: 4px 8px; "
+                "border-radius: 12px; "
                 "font-weight: 600; "
-                "font-size: 12px; "
+                "font-size: 11px; "
                 "border: none;"
             ).arg(severityBg, severityColor));
             severityLabel->setAlignment(Qt::AlignCenter);
-            severityLabel->setFixedHeight(28);
-        
+            severityLabel->setFixedHeight(24);
+            
             // Status label
             QLabel *statusLabel = new QLabel(statusText);
             statusLabel->setStyleSheet(QString(
                 "color: %1; "
                 "font-weight: 600; "
-                "font-size: 14px; "
+                "font-size: 13px; "
                 "background: transparent; "
-                "border: none; "
-                "text-transform: capitalize;"
+                "border: none;"
             ).arg(statusColor));
             statusLabel->setAlignment(Qt::AlignCenter);
-        
-            statusLayout->addWidget(severityLabel);
-            statusLayout->addWidget(statusLabel);
-        
+            
             cardLayout->addWidget(statusIcon);
-            cardLayout->addLayout(infoLayout, 1);
-            cardLayout->addLayout(statusLayout);
-        
-            m_resultsLayout->addWidget(resultCard);
+            cardLayout->addWidget(nameLabel, 1);
+            cardLayout->addWidget(severityLabel);
+            cardLayout->addWidget(statusLabel);
+            
+            scrollLayout->addWidget(resultCard);
         }
+        
+        scrollArea->setWidget(scrollWidget);
+        m_resultsLayout->addWidget(scrollArea);
+        m_resultsLayout->addSpacing(30);
     }
     
-    // Botão para voltar ao início
-    m_resultsLayout->addSpacing(32);
+    // === BOTÕES DE AÇÃO ===
+    QHBoxLayout *actionLayout = new QHBoxLayout();
+    actionLayout->setAlignment(Qt::AlignCenter);
+    actionLayout->setSpacing(16);
     
-    QHBoxLayout *homeLayout = new QHBoxLayout();
-    homeLayout->setAlignment(Qt::AlignCenter);
-    homeLayout->setSpacing(16);
+    QPushButton *saveReportButton = new QPushButton("💾 Salvar Relatório");
+    saveReportButton->setStyleSheet(
+        "QPushButton { "
+        "background: #059669; "
+        "color: white; "
+        "border: none; "
+        "border-radius: 8px; "
+        "padding: 14px 28px; "
+        "font-size: 15px; "
+        "font-weight: 600; "
+        "font-family: 'Segoe UI', sans-serif; "
+        "} "
+        "QPushButton:hover { "
+        "background: #047857; "
+        "} "
+        "QPushButton:pressed { "
+        "background: #065f46; "
+        "}"
+    );
+    saveReportButton->setCursor(Qt::PointingHandCursor);
+    connect(saveReportButton, &QPushButton::clicked, this, &SecurityChecker::onSaveReportClicked);
     
     QPushButton *homeButton = new QPushButton("🏠 Voltar ao Início");
     homeButton->setStyleSheet(
@@ -1096,8 +1138,8 @@ void SecurityChecker::showResults()
         "color: white; "
         "border: none; "
         "border-radius: 8px; "
-        "padding: 16px 32px; "
-        "font-size: 16px; "
+        "padding: 14px 28px; "
+        "font-size: 15px; "
         "font-weight: 600; "
         "font-family: 'Segoe UI', sans-serif; "
         "} "
@@ -1111,15 +1153,15 @@ void SecurityChecker::showResults()
     homeButton->setCursor(Qt::PointingHandCursor);
     connect(homeButton, &QPushButton::clicked, this, &SecurityChecker::onBackClicked);
     
-    QPushButton *closeButton = new QPushButton("❌ Encerrar");
+    QPushButton *closeButton = new QPushButton("✅ Concluir");
     closeButton->setStyleSheet(
         "QPushButton { "
         "background: #dc2626; "
         "color: white; "
         "border: none; "
         "border-radius: 8px; "
-        "padding: 16px 32px; "
-        "font-size: 16px; "
+        "padding: 14px 28px; "
+        "font-size: 15px; "
         "font-weight: 600; "
         "font-family: 'Segoe UI', sans-serif; "
         "} "
@@ -1135,9 +1177,10 @@ void SecurityChecker::showResults()
         QApplication::quit();
     });
     
-    homeLayout->addWidget(homeButton);
-    homeLayout->addWidget(closeButton);
-    m_resultsLayout->addLayout(homeLayout);
+    actionLayout->addWidget(saveReportButton);
+    actionLayout->addWidget(homeButton);
+    actionLayout->addWidget(closeButton);
+    m_resultsLayout->addLayout(actionLayout);
     
     // Forçar atualização do layout
     m_resultsFrame->updateGeometry();
@@ -1221,4 +1264,114 @@ void SecurityChecker::updateOSDisplay()
     m_osDisplay->setText(finalText);
     
     qDebug() << "Display atualizado com sucesso!";
+}
+
+void SecurityChecker::onSaveReportClicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Salvar Relatório de Segurança",
+        QString("relatorio_seguranca_%1.txt").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss")),
+        "Arquivos de Texto (*.txt);;Todos os Arquivos (*)"
+    );
+    
+    if (fileName.isEmpty()) {
+        return;
+    }
+    
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "Erro", "Não foi possível salvar o arquivo.");
+        return;
+    }
+    
+    QTextStream out(&file);
+    out.setEncoding(QStringConverter::Utf8);
+    
+    // Cabeçalho do relatório
+    out << "========================================\n";
+    out << "    RELATÓRIO DE SEGURANÇA - SECURECHECK\n";
+    out << "========================================\n\n";
+    
+    out << "Data/Hora: " << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << "\n";
+    out << "Sistema: " << QSysInfo::prettyProductName() << "\n";
+    out << "Kernel: " << QSysInfo::kernelType() << " " << QSysInfo::kernelVersion() << "\n";
+    out << "Arquitetura: " << QSysInfo::currentCpuArchitecture() << "\n\n";
+    
+    // Estatísticas
+    int total = m_currentVulnerabilities.size();
+    int vulnerable = 0;
+    int fixed = 0;
+    int skipped = 0;
+    int safe = 0;
+    
+    for (const auto &result : m_checkResults) {
+        switch (result.status) {
+            case CheckStatus::Vulnerable: vulnerable++; break;
+            case CheckStatus::Fixed: fixed++; break;
+            case CheckStatus::Skipped: skipped++; break;
+            case CheckStatus::Safe: safe++; break;
+            default: break;
+        }
+    }
+    
+    out << "RESUMO EXECUTIVO:\n";
+    out << "================\n";
+    out << "Total de verificações: " << total << "\n";
+    out << "Vulnerabilidades encontradas: " << (vulnerable + skipped) << "\n";
+    out << "Vulnerabilidades corrigidas: " << fixed << "\n";
+    out << "Vulnerabilidades ignoradas: " << skipped << "\n";
+    out << "Verificações seguras: " << safe << "\n\n";
+    
+    // Detalhes das verificações
+    out << "DETALHES DAS VERIFICAÇÕES:\n";
+    out << "==========================\n\n";
+    
+    for (const auto &result : m_checkResults) {
+        const VulnerabilityDefinition *vuln = nullptr;
+        for (const auto &v : m_currentVulnerabilities) {
+            if (v.id == result.id) {
+                vuln = &v;
+                break;
+            }
+        }
+        
+        if (!vuln) continue;
+        
+        QString statusText;
+        switch (result.status) {
+            case CheckStatus::Vulnerable: statusText = "VULNERÁVEL"; break;
+            case CheckStatus::Safe: statusText = "SEGURO"; break;
+            case CheckStatus::Fixed: statusText = "CORRIGIDO"; break;
+            case CheckStatus::Skipped: statusText = "IGNORADO"; break;
+            default: statusText = "DESCONHECIDO"; break;
+        }
+        
+        QString severityText = vuln->severity == Severity::Alta ? "ALTA" :
+                              vuln->severity == Severity::Media ? "MÉDIA" : "BAIXA";
+        
+        out << "----------------------------------------\n";
+        out << "ID: " << vuln->id << "\n";
+        out << "Nome: " << vuln->name << "\n";
+        out << "Status: " << statusText << "\n";
+        out << "Severidade: " << severityText << "\n";
+        out << "Descrição: " << vuln->description << "\n";
+        out << "Impacto: " << vuln->impact << "\n";
+        
+        if (result.status == CheckStatus::Vulnerable || result.status == CheckStatus::Skipped) {
+            out << "Comando de correção: " << vuln->fix << "\n";
+        }
+        
+        out << "\n";
+    }
+    
+    out << "========================================\n";
+    out << "Relatório gerado pelo SecureCheck v1.0.0\n";
+    out << "https://github.com/jeanccoelho/secure-check\n";
+    out << "========================================\n";
+    
+    file.close();
+    
+    QMessageBox::information(this, "Sucesso", 
+        QString("Relatório salvo com sucesso em:\n%1").arg(fileName));
 }

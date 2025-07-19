@@ -11,6 +11,9 @@
 #include <QTextEdit>
 #include <QFrame>
 #include <QTimer>
+#include <QFileDialog>
+#include <QDateTime>
+#include <QScrollArea>
 #include "VulnerabilityDefinition.h"
 #include "VulnerabilityManager.h"
 #include "SystemChecker.h"
@@ -34,6 +37,7 @@ private slots:
     void onCheckCompleted(const QString &id, bool isVulnerable);
     void onFixCompleted(const QString &id, bool success);
     void onErrorOccurred(const QString &error);
+    void onSaveReportClicked();
 
 private:
     void setupUI();
