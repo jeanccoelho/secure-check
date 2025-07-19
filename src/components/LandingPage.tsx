@@ -39,7 +39,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
           </p>
           <div className="flex justify-center space-x-4">
             <button
-              onClick={onStartScan}
+              onClick={() => {
+                window.scrollTo({
+                  top: document.documentElement.scrollHeight,
+                  behavior: 'smooth'
+                });
+              }}
               className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Shield className="h-6 w-6" />
