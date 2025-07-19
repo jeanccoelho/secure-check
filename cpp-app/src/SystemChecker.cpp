@@ -156,8 +156,12 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
         return "grep -i '^PermitRootLogin yes' /etc/ssh/sshd_config";
     }
     else if (vuln.id == "NO_FIREWALL") {
-        // Verificar se firewall não está ativo (ufw não instalado OU inativo)
-        return "! command -v ufw >/dev/null 2>&1 || (ufw status 2>/dev/null | grep -q 'Status: inactive')";
+        // Verificar se UFW não está instalado
+        return "! command -v ufw >/dev/null 2>&1";
+    }
+    else if (vuln.id == "UFW_INACTIVE") {
+        // Verificar se UFW está instalado mas inativo
+        return "command -v ufw >/dev/null 2>&1 && ufw status | grep -i 'Status: inactive'";
     }
     else if (vuln.id == "SUDO_NOPASSWD") {
         return "grep -r 'NOPASSWD' /etc/sudoers /etc/sudoers.d/ 2>/dev/null";
@@ -225,14 +229,12 @@ QString SystemChecker::getFixCommand(const VulnerabilityDefinition &vuln) const
     
 #ifdef __linux__
     if (vuln.id == "NO_FIREWALL") {
-        // Instalar ufw se não estiver instalado, depois ativar
-        return "if ! command -v ufw >/dev/null 2>&1; then "
-               "echo 'Instalando UFW...'; "
-               "apt update && apt install -y ufw; "
-               "fi && "
-               "echo 'Ativando UFW...'; "
-               "ufw --force enable && "
-               "echo 'UFW ativado com sucesso!'";
+        // Instalar UFW
+        return "echo 'Instalando UFW...' && apt update && apt install -y ufw && echo 'UFW instalado com sucesso!'";
+    }
+    else if (vuln.id == "UFW_INACTIVE") {
+        // Ativar UFW
+        return "echo 'Ativando UFW...' && ufw --force enable && echo 'UFW ativado com sucesso!'";
     }
 #endif
     

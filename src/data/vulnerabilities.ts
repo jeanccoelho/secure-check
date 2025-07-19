@@ -94,11 +94,19 @@ export const vulnerabilityDefinitions: VulnerabilityDefinitions = {
     },
     {
       "id": "NO_FIREWALL",
-      "name": "Firewall Inativo",
-      "description": "Nenhum firewall está ativo no sistema.",
-      "impact": "Todas as portas estão acessíveis.",
+      "name": "UFW não instalado",
+      "description": "O firewall UFW não está instalado no sistema.",
+      "impact": "Sistema sem proteção de firewall, todas as portas acessíveis.",
       "severity": "Alta",
-      "fix": "ufw enable"
+      "fix": "apt update && apt install -y ufw"
+    },
+    {
+      "id": "UFW_INACTIVE",
+      "name": "UFW instalado mas inativo",
+      "description": "O firewall UFW está instalado mas não está ativo.",
+      "impact": "Firewall disponível mas não protegendo o sistema.",
+      "severity": "Alta",
+      "fix": "ufw --force enable"
     },
     {
       "id": "SUDO_NOPASSWD",
