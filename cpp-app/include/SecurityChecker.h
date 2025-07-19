@@ -47,13 +47,13 @@ private:
     void updateProgress();
     void updateCurrentCheck();
     void updateActionButtons();
+    void updateOSDisplay();
     void showResults();
     void resetChecker();
     
     QString getSeverityColor(Severity severity) const;
     QString getStatusText(CheckStatus status) const;
     QString getStatusColor(CheckStatus status) const;
-    void updateOSDisplay();
     
     // UI Components
     QVBoxLayout *m_mainLayout;
