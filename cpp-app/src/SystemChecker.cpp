@@ -69,7 +69,9 @@ void SystemChecker::fixVulnerability(const VulnerabilityDefinition &vuln)
     if (command.isEmpty()) {
         // Simular correção para comandos não implementados
         QTimer::singleShot(2000, this, [this]() {
-            emit fixCompleted(m_currentFixId, true);
+            // Simular sucesso na maioria dos casos (80% de sucesso)
+            bool success = (QRandomGenerator::global()->bounded(100)) < 80;
+            emit fixCompleted(m_currentFixId, success);
         });
         return;
     }
