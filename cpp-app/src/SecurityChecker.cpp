@@ -44,7 +44,7 @@ void SecurityChecker::setupUI()
     // Aplicar estilos modernos similares à versão web
     setStyleSheet(R"(
         QWidget {
-            background: #f9fafb;
+            background: white;
             font-family: "Segoe UI", "Roboto", "Inter", sans-serif;
         }
         
