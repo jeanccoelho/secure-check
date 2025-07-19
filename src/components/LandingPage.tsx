@@ -175,10 +175,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
             <a href="https://github.com/jeanccoelho/secure-check" className="text-gray-400 hover:text-white transition-colors">
               GitHub
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="/docs/README.md" className="text-gray-400 hover:text-white transition-colors">
               Documentação
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://github.com/jeanccoelho/secure-check/issues" className="text-gray-400 hover:text-white transition-colors">
               Suporte
             </a>
           </div>
