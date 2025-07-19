@@ -82,31 +82,17 @@ EOF
 # Build Linux usando Docker
 echo "🔨 Compilando para Linux..."
 
-# Build com output direto
-docker build -f "$PROJECT_DIR/Dockerfile.linux" -t securitychecker-linux "$PROJECT_DIR"
+# Criar diretório de saída
+mkdir -p "$PROJECT_DIR/packages"
+
+# Build com output direto para diretório local
+DOCKER_BUILDKIT=1 docker build \
+    --output type=local,dest="$PROJECT_DIR/packages" \
+    -f "$PROJECT_DIR/Dockerfile.linux" \
+    "$PROJECT_DIR"
 
 if [ $? -eq 0 ]; then
-    echo "🔨 Extraindo arquivos..."
-    
-    # Criar diretório de saída
-    mkdir -p "$PROJECT_DIR/packages"
-    
-    # Criar container temporário e extrair arquivos
-    CONTAINER_ID=$(docker create securitychecker-linux)
-    
-    if [ ! -z "$CONTAINER_ID" ]; then
-        # Extrair arquivos
-        docker cp "$CONTAINER_ID:/output/SecurityChecker" "$PROJECT_DIR/packages/" 2>/dev/null || echo "   ⚠️  Erro ao copiar SecurityChecker"
-        docker cp "$CONTAINER_ID:/output/vulnerabilities.json" "$PROJECT_DIR/packages/" 2>/dev/null || echo "   ⚠️  Erro ao copiar vulnerabilities.json"
-        docker cp "$CONTAINER_ID:/output/README.md" "$PROJECT_DIR/packages/" 2>/dev/null || echo "   ⚠️  Erro ao copiar README.md"
-        
-        # Remover container temporário
-        docker rm "$CONTAINER_ID" >/dev/null 2>&1
-        
-        echo "   ✅ Arquivos extraídos com sucesso"
-    else
-        echo "   ❌ Erro ao criar container temporário"
-    fi
+    echo "   ✅ Build e extração concluídos com sucesso"
 else
     echo "   ❌ Erro no build Docker"
 fi

@@ -44,11 +44,28 @@ RUN mkdir -p build-linux && cd build-linux && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
     make -j$(nproc)
 
-# Preparar output
-RUN mkdir -p /output && \
-    cp build-linux/SecurityChecker /output/ && \
-    cp data/vulnerabilities.json /output/ && \
-    cp README.md /output/ && \
+# Preparar output para extração
+FROM scratch AS export-stage
+COPY --from=0 /app/build-linux/SecurityChecker /
+COPY --from=0 /app/data/vulnerabilities.json /
+COPY --from=0 /app/README.md /
+
+# Criar script de execução
+RUN echo '#!/bin/bash' > /run.sh && \
+    echo 'cd "$(dirname "$0")"' >> /run.sh && \
+    echo 'echo "🛡️  SecurityChecker"' >> /run.sh && \
+    echo 'echo "=================="' >> /run.sh && \
+    echo 'echo ""' >> /run.sh && \
+    echo 'if [[ $EUID -ne 0 ]]; then' >> /run.sh && \
+    echo '    echo "⚠️  Este programa precisa ser executado como root."' >> /run.sh && \
+    echo '    echo "   Execute: sudo ./run.sh"' >> /run.sh && \
+    echo '    exit 1' >> /run.sh && \
+    echo 'fi' >> /run.sh && \
+    echo './SecurityChecker' >> /run.sh && \
+    chmod +x /run.sh
+
+# Comando padrão para manter container vivo para extração
+CMD ["sleep", "1"]
     echo '#!/bin/bash' > /output/run.sh && \
     echo 'cd "$(dirname "$0")"' >> /output/run.sh && \
     echo 'echo "🛡️  SecurityChecker"' >> /output/run.sh && \
