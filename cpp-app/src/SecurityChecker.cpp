@@ -295,15 +295,16 @@ void SecurityChecker::createHeader()
     // Detectar e exibir o OS atual
     QString currentOS = m_vulnerabilityManager ? m_vulnerabilityManager->getCurrentOS() : "unknown";
     
+    qDebug() << "=== DEBUG SECURITYCHECKER ===";
+    qDebug() << "currentOS retornado:" << currentOS;
+    
     // Exibir informações detalhadas do sistema na interface
     QString systemInfo = QString("Sistema: %1 | Kernel: %2 | Versão: %3")
         .arg(QSysInfo::prettyProductName())
         .arg(QSysInfo::kernelType())
         .arg(QSysInfo::kernelVersion());
     
-    qDebug() << "=== INFORMAÇÕES DO SISTEMA NA INTERFACE ===";
-    qDebug() << "OS detectado:" << currentOS;
-    qDebug() << "Sistema completo:" << systemInfo;
+    qDebug() << "Sistema completo na interface:" << systemInfo;
     
     QString osDisplayText;
     if (currentOS == "windows") {
