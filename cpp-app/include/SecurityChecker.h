@@ -53,6 +53,7 @@ private:
     QString getSeverityColor(Severity severity) const;
     QString getStatusText(CheckStatus status) const;
     QString getStatusColor(CheckStatus status) const;
+    void updateOSDisplay();
     
     // UI Components
     QVBoxLayout *m_mainLayout;
