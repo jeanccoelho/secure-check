@@ -300,14 +300,7 @@ void SecurityChecker::createHeader()
     if (currentOS == "windows") osDisplayText = "🪟 Windows";
     else if (currentOS == "linux") osDisplayText = "🐧 Linux";
     else if (currentOS == "macos") osDisplayText = "🍎 macOS";
-    else {
-        qDebug() << "OS não reconhecido, usando Linux como padrão";
-        osDisplayText = "🐧 Linux (Detectado)";
-        // Forçar Linux se não conseguir detectar
-        if (m_vulnerabilityManager) {
-            m_currentOS = "linux";
-        }
-    }
+    else osDisplayText = "❓ Sistema Desconhecido";
     
     osDisplay->setText(osDisplayText);
     
@@ -542,10 +535,16 @@ void SecurityChecker::loadVulnerabilities()
     m_currentOS = m_vulnerabilityManager->getCurrentOS();
     qDebug() << "OS carregado:" << m_currentOS;
     
-    // Se não conseguir detectar, usar Linux como padrão
+    // Verificar se o OS é suportado
     if (m_currentOS == "unknown" || m_currentOS.isEmpty()) {
-        qDebug() << "Forçando Linux como padrão";
-        m_currentOS = "linux";
+        QMessageBox::critical(this, "Sistema Não Suportado", 
+            "Não foi possível detectar o sistema operacional ou ele não é suportado.\n\n"
+            "Sistemas suportados:\n"
+            "• Windows\n"
+            "• Linux\n"
+            "• macOS\n\n"
+            "Verifique se está executando em um sistema compatível.");
+        return;
     }
     
     // Carregar vulnerabilidades para o OS detectado
