@@ -142,7 +142,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
         <div id="download" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl p-8 text-center">
           <h3 className="text-3xl font-bold mb-4">Pronto para começar?</h3>
           <p className="text-xl mb-6 opacity-90">
-            Baixe o SecureCheck e proteja seu sistema em minutos.
+            Esta é uma demonstração da interface web. Para usar o SecureCheck real, baixe a aplicação desktop.
           </p>
           <div className="flex justify-center space-x-4">
             <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
@@ -154,6 +154,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
             <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
               Download para macOS
             </button>
+          </div>
+          <div className="mt-6 p-4 bg-blue-700 rounded-lg">
+            <p className="text-sm opacity-90">
+              💡 <strong>Demonstração Web:</strong> Use o botão "Iniciar Verificação" acima para ver como funciona a interface do SecurityChecker.
+            </p>
           </div>
           <p className="mt-4 text-sm opacity-75">
             Código fonte disponível no <a href="https://github.com/jeanccoelho/secure-check" className="underline">GitHub</a>

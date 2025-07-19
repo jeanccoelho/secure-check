@@ -27,10 +27,12 @@ export const SecurityChecker: React.FC<SecurityCheckerProps> = ({ onBack }) => {
   }, []);
 
   const simulateCheck = async (check: VulnerabilityCheck): Promise<boolean> => {
-    // Esta é apenas uma demonstração web
-    // A versão real (C++) faz verificações reais do sistema
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return Math.random() > 0.5; // 50% chance para demonstração
+    // Simulação removida - esta é apenas uma demonstração da interface
+    // A versão real (aplicação C++) faz verificações reais do sistema
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Retornar sempre vulnerável para demonstrar a interface de correção
+    return true;
   };
 
   const handleStartCheck = async () => {
