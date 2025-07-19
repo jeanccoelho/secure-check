@@ -82,17 +82,14 @@ EOF
 # Build Linux usando Docker
 echo "🔨 Compilando para Linux..."
 
-# Limpar cache anterior se existir
-if [[ -d "$PROJECT_DIR/build-linux" ]]; then
-    echo "🧹 Limpando cache anterior..."
-    rm -rf "$PROJECT_DIR/build-linux"
-fi
-
-docker build -f "$PROJECT_DIR/Dockerfile.linux" -t securitychecker-linux "$PROJECT_DIR"
-
-# Extrair resultado
+# Criar diretório de saída
 mkdir -p "$PROJECT_DIR/packages"
-docker run --rm -v "$PROJECT_DIR/packages:/output" securitychecker-linux
+
+# Build e extração em uma etapa
+docker build -f "$PROJECT_DIR/Dockerfile.linux" -t securitychecker-linux "$PROJECT_DIR" && \
+docker create --name temp-container securitychecker-linux && \
+docker cp temp-container:/output/. "$PROJECT_DIR/packages/" && \
+docker rm temp-container
 
 echo "✅ Build Linux concluído"
 
@@ -113,7 +110,16 @@ echo ""
 echo "🎉 Build multiplataforma concluído!"
 echo ""
 echo "📦 Pacotes gerados:"
-ls -la "$PROJECT_DIR/packages/"*.tar.gz 2>/dev/null || echo "   Nenhum pacote .tar.gz encontrado"
+ls -la "$PROJECT_DIR/packages/" 2>/dev/null || echo "   Nenhum arquivo encontrado"
+
+# Criar pacote tar.gz se arquivos foram extraídos
+if [[ -f "$PROJECT_DIR/packages/SecurityChecker" ]]; then
+    echo ""
+    echo "📦 Criando pacote tar.gz..."
+    cd "$PROJECT_DIR/packages"
+    tar -czf "SecurityChecker-$VERSION-linux-x64.tar.gz" SecurityChecker vulnerabilities.json README.md
+    echo "✅ Pacote criado: SecurityChecker-$VERSION-linux-x64.tar.gz"
+fi
 
 echo ""
 echo "📋 Próximos passos:"
