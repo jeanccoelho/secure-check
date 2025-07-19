@@ -164,7 +164,7 @@ QString SystemChecker::getCheckCommand(const VulnerabilityDefinition &vuln) cons
         return "command -v ufw >/dev/null 2>&1 && ufw status | grep -i 'Status: inactive'";
     }
     else if (vuln.id == "SSH_DEFAULT_PORT") {
-        return "test -f /etc/ssh/sshd_config && (grep -i '^Port 22' /etc/ssh/sshd_config || ! grep -i '^Port' /etc/ssh/sshd_config)";
+        return "grep -q '^Port 22' /etc/ssh/sshd_config 2>/dev/null || (! grep -q '^Port' /etc/ssh/sshd_config 2>/dev/null && test -f /etc/ssh/sshd_config)";
     }
     else if (vuln.id == "FAIL2BAN_NOT_INSTALLED") {
         return "! command -v fail2ban-server >/dev/null 2>&1";
