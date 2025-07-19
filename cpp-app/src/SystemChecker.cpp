@@ -240,7 +240,16 @@ QString SystemChecker::getFixCommand(const VulnerabilityDefinition &vuln) const
         return "echo 'Ativando UFW...' && ufw --force enable && echo 'UFW ativado com sucesso!'";
     }
     else if (vuln.id == "SSH_DEFAULT_PORT") {
-        return "echo 'Configurando SSH na porta 2222...' && sed -i 's/^#Port 22/Port 2222/' /etc/ssh/sshd_config && sed -i 's/^Port 22/Port 2222/' /etc/ssh/sshd_config && systemctl restart sshd && echo 'SSH configurado na porta 2222'";
+        return "echo 'Configurando SSH na porta 2222...' && "
+               "cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup && "
+               "if grep -q '^Port' /etc/ssh/sshd_config; then "
+               "  sed -i 's/^Port.*/Port 2222/' /etc/ssh/sshd_config; "
+               "else "
+               "  echo 'Port 2222' >> /etc/ssh/sshd_config; "
+               "fi && "
+               "sshd -t && "
+               "systemctl restart sshd && "
+               "echo 'SSH configurado na porta 2222 com sucesso!'";
     }
     else if (vuln.id == "FAIL2BAN_NOT_INSTALLED") {
         return "echo 'Instalando Fail2Ban...' && apt update && apt install -y fail2ban && echo 'Fail2Ban instalado com sucesso!'";
