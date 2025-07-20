@@ -205,6 +205,62 @@ export const vulnerabilityDefinitions: VulnerabilityDefinitions = {
       "impact": "Dados vulneráveis em caso de perda do equipamento.",
       "severity": "Alta",
       "fix": "Ativar via Preferências do Sistema > Segurança > FileVault"
+    },
+    {
+      "id": "AUTOMOUNT_USB",
+      "name": "Montagem automática de USB",
+      "description": "USBs são montados automaticamente.",
+      "impact": "Risco de malware em mídia removível.",
+      "severity": "Média",
+      "fix": "Usar launchd para interceptar e bloquear automount"
+    },
+    {
+      "id": "ICLOUD_BACKUP_ON",
+      "name": "Backup iCloud ativo para pastas sensíveis",
+      "description": "Arquivos podem ser sincronizados para a nuvem inadvertidamente.",
+      "impact": "Vazamento de dados.",
+      "severity": "Média",
+      "fix": "Desativar iCloud Drive para Documentos/Área de Trabalho"
+    },
+    {
+      "id": "UNKNOWN_EXTENSIONS_ENABLED",
+      "name": "Execução de extensões não identificadas",
+      "description": "Extensões do sistema de terceiros ativas.",
+      "impact": "Risco de rootkits.",
+      "severity": "Alta",
+      "fix": "Remover extensões suspeitas com spctl --remove"
+    },
+    {
+      "id": "NO_PASSWORD_SLEEP",
+      "name": "Sem senha ao sair do repouso",
+      "description": "Sistema desbloqueia automaticamente após o repouso.",
+      "impact": "Acesso físico não autorizado.",
+      "severity": "Média",
+      "fix": "Ativar via Preferências > Segurança > Senha após repouso"
+    },
+    {
+      "id": "SHARING_SERVICES_ON",
+      "name": "Serviços de Compartilhamento Ativos",
+      "description": "Compartilhamento de arquivos, impressoras, etc.",
+      "impact": "Exposição de serviços na rede local.",
+      "severity": "Média",
+      "fix": "Desativar em Preferências > Compartilhamento"
+    },
+    {
+      "id": "SIP_DISABLED",
+      "name": "System Integrity Protection desativado",
+      "description": "SIP está desabilitado.",
+      "impact": "Proteções do sistema comprometidas.",
+      "severity": "Alta",
+      "fix": "Reativar via recovery: csrutil enable"
+    },
+    {
+      "id": "REMOTE_LOGIN_ENABLED",
+      "name": "Login remoto ativo",
+      "description": "SSH está ativado.",
+      "impact": "Possível acesso remoto não autorizado.",
+      "severity": "Alta",
+      "fix": "Desativar em Preferências > Compartilhamento > Login remoto"
     }
   ]
 };
