@@ -153,10 +153,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
                 )}
               </div>
               
-              <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+              <a 
+                href="https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-windows-x64.zip"
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 no-underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Download className="h-5 w-5" />
                 <span>Download Windows</span>
-              </button>
+              </a>
             </div>
             
             {/* Linux Card */}
@@ -183,10 +188,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
                 )}
               </div>
               
-              <button className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+              <a 
+                href="https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-linux-x64.tar.gz"
+                className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 no-underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Download className="h-5 w-5" />
                 <span>Download Linux</span>
-              </button>
+              </a>
             </div>
             
             {/* macOS Card */}
@@ -213,32 +223,52 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartScan }) => {
                 )}
               </div>
               
-              <button className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2">
+              <a 
+                href="https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-macos-x64.tar.gz"
+                className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2 no-underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Download className="h-5 w-5" />
                 <span>Download macOS</span>
-              </button>
+              </a>
             </div>
           </div>
         </div>
 
         {/* Download Section */}
-        <div id="download" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl p-8 text-center">
+        <div id="download" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl p-6 md:p-8 text-center">
           <h3 className="text-3xl font-bold mb-4">Pronto para começar?</h3>
-          <p className="text-xl mb-6 opacity-90">
+          <p className="text-lg md:text-xl mb-6 opacity-90 max-w-2xl mx-auto">
             Para usar o SecureCheck, baixe a aplicação desktop.
           </p>
-          <div className="flex justify-center space-x-4">
-            <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:space-x-4 sm:gap-0">
+            <a 
+              href="https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-windows-x64.zip"
+              className="bg-white text-blue-600 px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors no-underline text-sm sm:text-base"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Download para Windows
-            </button>
-            <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            </a>
+            <a 
+              href="https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-linux-x64.tar.gz"
+              className="bg-white text-blue-600 px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors no-underline text-sm sm:text-base"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Download para Linux
-            </button>
-            <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            </a>
+            <a 
+              href="https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-macos-x64.tar.gz"
+              className="bg-white text-blue-600 px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors no-underline text-sm sm:text-base"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Download para macOS
-            </button>
+            </a>
           </div>
-          <p className="mt-4 text-sm opacity-75">
+          <p className="mt-4 text-xs sm:text-sm opacity-75">
             Código fonte disponível no <a href="https://github.com/jeanccoelho/secure-check" className="underline">GitHub</a>
           </p>
         </div>
