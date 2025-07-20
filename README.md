@@ -7,11 +7,13 @@ Ferramenta open-source para verificação e correção automática de vulnerabil
 
 ### 📥 Downloads
 
-Baixe a versão completa para seu sistema operacional:
+Baixe a versão mais recente para seu sistema operacional:
 
-- **Windows**: [SecurityChecker-1.0.0-windows-x64.zip](https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-windows-x64.zip)
-- **Linux**: [SecurityChecker-1.0.0-linux-x64.tar.gz](https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-linux-x64.tar.gz)
-- **macOS**: [SecurityChecker-1.0.0-macos-x64.tar.gz](https://github.com/jeanccoelho/secure-check/releases/latest/download/SecurityChecker-1.0.0-macos-x64.tar.gz)
+- **Windows**: [Download para Windows](https://github.com/jeanccoelho/secure-check/releases/latest)
+- **Linux**: [Download para Linux](https://github.com/jeanccoelho/secure-check/releases/latest)
+- **macOS**: [Download para macOS](https://github.com/jeanccoelho/secure-check/releases/latest)
+
+> 📋 **Nota**: Os executáveis são gerados automaticamente via GitHub Actions para garantir builds limpos e seguros.
 
 ### 🚀 Como usar
 
@@ -20,6 +22,14 @@ Baixe a versão completa para seu sistema operacional:
 3. **Execute como administrador/root**:
    - **Windows**: Clique com botão direito em `run.bat` → "Executar como administrador"
    - **Linux/macOS**: `sudo ./run.sh`
+
+### 🔄 Releases Automáticos
+
+Os releases são gerados automaticamente via GitHub Actions quando:
+- Uma nova tag `v*` é criada (ex: `v1.0.0`)
+- Trigger manual via GitHub Actions
+
+Cada release inclui executáveis para Windows, Linux e macOS.
 
 ### ✨ Características
 
