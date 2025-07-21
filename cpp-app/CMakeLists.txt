@@ -23,6 +23,7 @@ set(SOURCES
     src/SecurityChecker.cpp
     src/VulnerabilityManager.cpp
     src/SystemChecker.cpp
+    src/OllamaClient.cpp
 )
 
 # Header files
@@ -33,6 +34,7 @@ set(HEADERS
     include/VulnerabilityManager.h
     include/SystemChecker.h
     include/VulnerabilityDefinition.h
+    include/OllamaClient.h
 )
 
 # Create executable
