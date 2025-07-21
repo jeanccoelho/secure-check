@@ -522,6 +522,14 @@ void SecurityChecker::createResultsSection()
 void SecurityChecker::loadVulnerabilities()
 {
     if (m_scanMode == LandingPage::ScanMode::Ollama) {
+        // Limpar vulnerabilidades anteriores
+        m_currentVulnerabilities.clear();
+        m_checkResults.clear();
+        m_currentCheckIndex = 0;
+        
+        // Mostrar status de carregamento e NÃO inicializar a interface de verificação ainda
+        updateOSDisplay();
+        
         startOllamaAnalysis();
         return;
     }
@@ -1058,6 +1066,8 @@ void SecurityChecker::onSaveReportClicked()
 
 void SecurityChecker::onOllamaVulnerabilitiesReceived(const QVector<VulnerabilityDefinition> &vulnerabilities)
 {
+    qDebug() << "Vulnerabilidades recebidas da IA:" << vulnerabilities.size();
+    
     m_currentVulnerabilities = vulnerabilities;
     m_checkResults.clear();
     m_checkResults.resize(vulnerabilities.size());
@@ -1069,6 +1079,12 @@ void SecurityChecker::onOllamaVulnerabilitiesReceived(const QVector<Vulnerabilit
     }
     
     m_currentCheckIndex = 0;
+    
+    // Restaurar progresso normal
+    m_progressBar->setRange(0, vulnerabilities.size());
+    m_progressBar->setValue(0);
+    
+    // Agora sim, mostrar a primeira verificação
     updateOSDisplay();
     updateProgress();
     updateCurrentCheck();
@@ -1076,14 +1092,27 @@ void SecurityChecker::onOllamaVulnerabilitiesReceived(const QVector<Vulnerabilit
 
 void SecurityChecker::onOllamaError(const QString &error)
 {
+    qDebug() << "Erro do Ollama:" << error;
+    
     m_checkTitle->setText("Erro na Análise de IA");
     m_descriptionLabel->setText(QString("Erro ao comunicar com o Ollama: %1").arg(error));
     m_impactLabel->setText("Tente novamente ou use a verificação local.");
     m_severityLabel->clear();
     
+    // Restaurar progresso normal
+    m_progressBar->setRange(0, 100);
+    m_progressBar->setValue(0);
+    m_progressLabel->setText("Erro na análise");
+    
     m_resultFrame->show();
     m_resultIcon->setText("❌");
     m_resultText->setText("Falha na análise de IA");
+    
+    // Mostrar botão para voltar
+    m_startCheckButton->hide();
+    m_fixButton->hide();
+    m_skipButton->hide();
+    m_nextButton->hide();
 }
     
     // Header

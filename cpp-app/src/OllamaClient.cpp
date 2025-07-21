@@ -14,9 +14,9 @@ OllamaClient::OllamaClient(QObject *parent)
     , m_timeoutTimer(new QTimer(this))
     , m_currentReply(nullptr)
 {
-    // Configurar timeout de 30 segundos
+    // Configurar timeout de 180 segundos para análises de IA (3 minutos)
     m_timeoutTimer->setSingleShot(true);
-    m_timeoutTimer->setInterval(30000);
+    m_timeoutTimer->setInterval(180000);
     connect(m_timeoutTimer, &QTimer::timeout, this, &OllamaClient::onTimeout);
     
     qDebug() << "OllamaClient inicializado com endpoint:" << OLLAMA_ENDPOINT;
@@ -245,8 +245,8 @@ void OllamaClient::onNetworkError(QNetworkReply::NetworkError error)
 
 void OllamaClient::onTimeout()
 {
-    qDebug() << "Timeout na requisição para o Ollama";
-    emit errorOccurred("Timeout: O servidor Ollama não respondeu em 30 segundos");
+    qDebug() << "Timeout na requisição para o Ollama (180 segundos)";
+    emit errorOccurred("Timeout: O servidor Ollama não respondeu em 3 minutos. Tente novamente ou use verificação local.");
     cleanup();
 }
 
