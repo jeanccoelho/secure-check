@@ -168,6 +168,7 @@ void OllamaClient::onAnalysisReplyFinished()
     }
     
     QByteArray data = m_currentReply->readAll();
+    qDebug() << "Raw Ollama API response data:" << data; // Adicionado para depuração
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
     
@@ -181,6 +182,7 @@ void OllamaClient::onAnalysisReplyFinished()
     if (doc.isObject()) {
         QJsonObject obj = doc.object();
         response = obj["response"].toString();
+        qDebug() << "Extracted 'response' field from Ollama:" << response.left(500) << "..."; // Adicionado para depuração
     }
     
     if (response.isEmpty()) {
@@ -299,6 +301,7 @@ QVector<VulnerabilityDefinition> OllamaClient::parseVulnerabilitiesFromResponse(
     QVector<VulnerabilityDefinition> vulnerabilities;
     
     // Tentar encontrar JSON na resposta
+    qDebug() << "Attempting to parse this string as JSON:" << response.left(500) << "..."; // Adicionado para depuração
     QString jsonStr = response.trimmed();
     
     // Se a resposta não começar com {, tentar encontrar o JSON
