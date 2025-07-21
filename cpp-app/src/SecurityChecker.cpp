@@ -353,42 +353,9 @@ void SecurityChecker::setAIMode(bool enabled)
         // Testar conexão com Ollama
         m_ollamaClient->testConnection();
     }
-    
-    // Recarregar vulnerabilidades baseado no modo
-    loadVulnerabilities();
 }
     osLabel->setStyleSheet("font-weight: 600; color: #374151; background: white;");
     
-    m_osDisplay = new QLabel("Detectando...");
-    m_osDisplay->setStyleSheet(
-        "background: #f3f4f6; "
-        "color: #1f2937; "
-        "border: 1px solid #d1d5db; "
-        "border-radius: 6px; "
-        "padding: 8px 12px; "
-        "font-weight: 600; "
-        "min-width: 80px;"
-    );
-    
-    m_osDisplay->setWordWrap(true);
-    m_osDisplay->setStyleSheet(
-        "background: #f3f4f6; "
-        "color: #1f2937; "
-        "border: 1px solid #d1d5db; "
-        "border-radius: 6px; "
-        "padding: 12px 16px; "
-        "font-weight: 600; "
-        "min-width: 200px; "
-        "max-width: 300px; "
-        "font-size: 12px; "
-        "line-height: 1.4;"
-    );
-    
-    headerLayout->addWidget(osLabel);
-    headerLayout->addSpacing(8);
-    headerLayout->addWidget(m_osDisplay);
-    
-    m_mainLayout->addWidget(headerFrame);
 }
 
 void SecurityChecker::createProgressSection()
@@ -443,6 +410,9 @@ void SecurityChecker::setupOllamaUI()
     QVBoxLayout *ollamaMainLayout = new QVBoxLayout(m_ollamaFrame);
     ollamaMainLayout->setContentsMargins(32, 24, 32, 24);
     ollamaMainLayout->setSpacing(16);
+    
+    QHBoxLayout *ollamaHeaderLayout = new QHBoxLayout();
+    QVBoxLayout *ollamaControlsLayout = new QVBoxLayout();
     
     // Header do Ollama
     QLabel *ollamaTitle = new QLabel("Análise com IA (Ollama)");
