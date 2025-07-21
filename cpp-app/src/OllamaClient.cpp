@@ -180,10 +180,40 @@ void OllamaClient::onAnalysisReplyFinished()
     QString httpReason = m_currentReply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
     qDebug() << "HTTP Status:" << httpStatus << httpReason;
     
+    // Tratamento específico para erros de servidor
+    if (httpStatus == 504) {
+        emit errorOccurred("Servidor Ollama não respondeu (Gateway Timeout). O servidor pode estar sobrecarregado ou o modelo pode estar sendo carregado. Tente novamente em alguns minutos.");
+        cleanup();
+        return;
+    }
+    
+    if (httpStatus == 502) {
+        emit errorOccurred("Servidor Ollama indisponível (Bad Gateway). Verifique se o serviço Ollama está rodando.");
+        cleanup();
+        return;
+    }
+    
+    if (httpStatus == 503) {
+        emit errorOccurred("Servidor Ollama temporariamente indisponível (Service Unavailable). Tente novamente em alguns minutos.");
+        cleanup();
+        return;
+    }
+    
     if (m_currentReply->error() != QNetworkReply::NoError) {
         QString errorDetails = QString("HTTP %1 %2 - %3").arg(httpStatus).arg(httpReason).arg(m_currentReply->errorString());
         qDebug() << "Erro detalhado:" << errorDetails;
-        emit errorOccurred(QString("Erro na análise de segurança: %1").arg(errorDetails));
+        
+        // Mensagem mais amigável para o usuário
+        QString userMessage;
+        if (httpStatus >= 500) {
+            userMessage = "Erro interno do servidor Ollama. Tente usar a verificação local ou aguarde alguns minutos.";
+        } else if (httpStatus >= 400) {
+            userMessage = "Erro na requisição para o Ollama. Verifique se o modelo está disponível.";
+        } else {
+            userMessage = QString("Erro de conectividade: %1").arg(m_currentReply->errorString());
+        }
+        
+        emit errorOccurred(userMessage);
         cleanup();
         return;
     }
@@ -287,7 +317,7 @@ void OllamaClient::onNetworkError(QNetworkReply::NetworkError error)
 void OllamaClient::onTimeout()
 {
     qDebug() << "Timeout na requisição para o Ollama (180 segundos)";
-    emit errorOccurred("Timeout: O servidor Ollama não respondeu em 3 minutos. Tente novamente ou use verificação local.");
+    emit errorOccurred("Timeout: O servidor Ollama não respondeu em 3 minutos. O servidor pode estar sobrecarregado ou processando uma requisição complexa. Tente novamente mais tarde ou use a verificação local.");
     cleanup();
 }
 

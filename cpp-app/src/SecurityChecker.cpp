@@ -1094,9 +1094,9 @@ void SecurityChecker::onOllamaError(const QString &error)
 {
     qDebug() << "Erro do Ollama:" << error;
     
-    m_checkTitle->setText("Erro na Análise de IA");
-    m_descriptionLabel->setText(QString("Erro ao comunicar com o Ollama: %1").arg(error));
-    m_impactLabel->setText("Tente novamente ou use a verificação local.");
+    m_checkTitle->setText("Análise de IA Indisponível");
+    m_descriptionLabel->setText(error);
+    m_impactLabel->setText("💡 Sugestão: Use a verificação local que funciona offline e não depende de servidores externos.");
     m_severityLabel->clear();
     
     // Restaurar progresso normal
@@ -1106,13 +1106,33 @@ void SecurityChecker::onOllamaError(const QString &error)
     
     m_resultFrame->show();
     m_resultIcon->setText("❌");
-    m_resultText->setText("Falha na análise de IA");
+    m_resultText->setText("Servidor Ollama indisponível");
     
-    // Mostrar botão para voltar
+    // Mostrar botão para voltar e sugerir verificação local
     m_startCheckButton->hide();
     m_fixButton->hide();
     m_skipButton->hide();
     m_nextButton->hide();
+    
+    // Adicionar botão para tentar verificação local
+    QPushButton *localButton = new QPushButton("🔄 Usar Verificação Local");
+    localButton->setObjectName("primaryButton");
+    localButton->setToolTip("Usar verificações pré-definidas que funcionam offline");
+    
+    // Encontrar o layout dos botões e adicionar o botão local
+    QWidget *buttonWidget = findChild<QWidget*>();
+    if (buttonWidget) {
+        QHBoxLayout *buttonLayout = qobject_cast<QHBoxLayout*>(buttonWidget->layout());
+        if (buttonLayout) {
+            buttonLayout->addWidget(localButton);
+            connect(localButton, &QPushButton::clicked, [this]() {
+                // Mudar para modo local e recarregar
+                m_scanMode = LandingPage::ScanMode::Local;
+                m_selectedModel.clear();
+                loadVulnerabilities();
+            });
+        }
+    }
 }
     
     // Header
