@@ -17,6 +17,7 @@
 #include "VulnerabilityDefinition.h"
 #include "VulnerabilityManager.h"
 #include "SystemChecker.h"
+#include "OllamaClient.h"
 
 class SecurityChecker : public QWidget
 {
@@ -38,6 +39,17 @@ private slots:
     void onFixCompleted(const QString &id, bool success);
     void onErrorOccurred(const QString &error);
     void onSaveReportClicked();
+    
+    // Novos slots para Ollama
+    void onOllamaModeToggled(bool enabled);
+    void onOllamaConfigClicked();
+    void onOllamaAnalysisClicked();
+    void onOllamaVulnerabilitiesFound(const QVector<VulnerabilityDefinition> &vulnerabilities);
+    void onOllamaAnalysisCompleted(bool success);
+    void onOllamaConnectionTest(bool success, const QString &message);
+    void onOllamaError(const QString &error);
+    void onOllamaProgress(const QString &status);
+    void onSystemInfoCollected(const SystemInfo &info);
 
 private:
     void setupUI();
@@ -58,6 +70,11 @@ private:
     QString getSeverityColor(Severity severity) const;
     QString getStatusText(CheckStatus status) const;
     QString getStatusColor(CheckStatus status) const;
+    
+    // Novos métodos para Ollama
+    void setupOllamaUI();
+    void updateOllamaStatus();
+    void showOllamaConfigDialog();
     
     // UI Components
     QVBoxLayout *m_mainLayout;
@@ -85,6 +102,14 @@ private:
     QFrame *m_resultsFrame;
     QVBoxLayout *m_resultsLayout;
     
+    // Novos componentes UI para Ollama
+    QFrame *m_ollamaFrame;
+    QCheckBox *m_ollamaCheckBox;
+    QPushButton *m_ollamaConfigButton;
+    QPushButton *m_ollamaAnalysisButton;
+    QLabel *m_ollamaStatusLabel;
+    QProgressBar *m_ollamaProgressBar;
+    
     // Data
     VulnerabilityManager *m_vulnerabilityManager;
     SystemChecker *m_systemChecker;
@@ -93,6 +118,11 @@ private:
     int m_currentCheckIndex;
     QString m_currentOS;
     bool m_isCompleted;
+    
+    // Novos membros para Ollama
+    OllamaClient *m_ollamaClient;
+    bool m_isOllamaModeEnabled;
+    bool m_isOllamaAnalysisRunning;
 };
 
 #endif // SECURITYCHECKER_H
