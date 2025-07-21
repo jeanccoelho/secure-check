@@ -35,7 +35,7 @@ SecurityChecker::SecurityChecker(QWidget *parent)
     m_ollamaClient = new OllamaClient(this);
     
     // Conectar sinais
-    connect(m_systemChecker, &SystemChecker::checkCompleted,
+    m_isOllamaModeEnabled = false; // Será definido via setAIMode()
             this, &SecurityChecker::onCheckCompleted);
     connect(m_systemChecker, &SystemChecker::fixCompleted,
             this, &SecurityChecker::onFixCompleted);
@@ -324,8 +324,34 @@ void SecurityChecker::createHeader()
     headerLayout->addWidget(m_backButton);
     headerLayout->addStretch();
     
-    // Exibição do OS detectado (somente leitura)
-    QLabel *osLabel = new QLabel("Sistema Detectado:");
+    // Título da página (será atualizado baseado no modo)
+    m_titleLabel = new QLabel("Verificação de Segurança");
+    m_titleLabel->setStyleSheet("font-size: 24px; font-weight: bold; color: #1f2937;");
+    
+    headerLayout->addWidget(m_titleLabel);
+    headerLayout->addStretch();
+    
+    m_mainLayout->addWidget(headerFrame);
+}
+
+void SecurityChecker::setAIMode(bool enabled)
+{
+    m_isOllamaModeEnabled = enabled;
+    
+    // Atualizar título
+    if (m_titleLabel) {
+        m_titleLabel->setText(enabled ? "🤖 Verificação com IA" : "🔍 Verificação Estática");
+    }
+    
+    // Se modo IA estiver ativado, iniciar coleta de dados automaticamente
+    if (enabled && m_ollamaClient) {
+        // Testar conexão com Ollama
+        m_ollamaClient->testConnection();
+    }
+    
+    // Recarregar vulnerabilidades baseado no modo
+    loadVulnerabilities();
+}
     osLabel->setStyleSheet("font-weight: 600; color: #374151; background: white;");
     
     m_osDisplay = new QLabel("Detectando...");
@@ -414,87 +440,12 @@ void SecurityChecker::setupOllamaUI()
     ollamaMainLayout->setSpacing(16);
     
     // Header do Ollama
-    QHBoxLayout *ollamaHeaderLayout = new QHBoxLayout();
-    
-    QLabel *ollamaIcon = new QLabel("🤖");
-    ollamaIcon->setStyleSheet("font-size: 24px; background: white;");
-    
     QLabel *ollamaTitle = new QLabel("Análise com IA (Ollama)");
     ollamaTitle->setStyleSheet("font-size: 16px; font-weight: 600; color: #1f2937; background: white;");
     
     m_ollamaCheckBox = new QCheckBox("Usar análise com IA");
     m_ollamaCheckBox->setStyleSheet(
         "QCheckBox { "
-        "font-weight: 500; "
-        "color: #374151; "
-        "background: white; "
-        "} "
-        "QCheckBox::indicator { "
-        "width: 18px; "
-        "height: 18px; "
-        "} "
-        "QCheckBox::indicator:unchecked { "
-        "border: 2px solid #d1d5db; "
-        "border-radius: 4px; "
-        "background: white; "
-        "} "
-        "QCheckBox::indicator:checked { "
-        "border: 2px solid #2563eb; "
-        "border-radius: 4px; "
-        "background: #2563eb; "
-        "image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOSIgdmlld0JveD0iMCAwIDEyIDkiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMC42IDEuNEw0LjIgNy44TDEuNCA1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K); "
-        "}"
-    );
-    connect(m_ollamaCheckBox, &QCheckBox::toggled, this, &SecurityChecker::onOllamaModeToggled);
-    
-    ollamaHeaderLayout->addWidget(ollamaIcon);
-    ollamaHeaderLayout->addWidget(ollamaTitle);
-    ollamaHeaderLayout->addStretch();
-    ollamaHeaderLayout->addWidget(m_ollamaCheckBox);
-    
-    // Controles do Ollama
-    QHBoxLayout *ollamaControlsLayout = new QHBoxLayout();
-    
-    m_ollamaConfigButton = new QPushButton("⚙️ Configurar");
-    m_ollamaConfigButton->setStyleSheet(
-        "QPushButton { "
-        "background: #f3f4f6; "
-        "color: #374151; "
-        "border: 1px solid #d1d5db; "
-        "border-radius: 6px; "
-        "padding: 8px 16px; "
-        "font-weight: 500; "
-        "} "
-        "QPushButton:hover { "
-        "background: #e5e7eb; "
-        "}"
-    );
-    connect(m_ollamaConfigButton, &QPushButton::clicked, this, &SecurityChecker::onOllamaConfigClicked);
-    
-    m_ollamaAnalysisButton = new QPushButton("🔍 Analisar com IA");
-    m_ollamaAnalysisButton->setObjectName("primaryButton");
-    m_ollamaAnalysisButton->setEnabled(false);
-    connect(m_ollamaAnalysisButton, &QPushButton::clicked, this, &SecurityChecker::onOllamaAnalysisClicked);
-    
-    m_ollamaStatusLabel = new QLabel("Ollama desconectado");
-    m_ollamaStatusLabel->setStyleSheet("color: #6b7280; font-size: 12px; background: white;");
-    
-    ollamaControlsLayout->addWidget(m_ollamaConfigButton);
-    ollamaControlsLayout->addWidget(m_ollamaAnalysisButton);
-    ollamaControlsLayout->addStretch();
-    ollamaControlsLayout->addWidget(m_ollamaStatusLabel);
-    
-    // Barra de progresso do Ollama
-    m_ollamaProgressBar = new QProgressBar();
-    m_ollamaProgressBar->setVisible(false);
-    m_ollamaProgressBar->setStyleSheet(
-        "QProgressBar { "
-        "border: none; "
-        "border-radius: 6px; "
-        "text-align: center; "
-        "background: #f3f4f6; "
-        "height: 12px; "
-        "} "
         "QProgressBar::chunk { "
         "background: #2563eb; "
         "border-radius: 6px; "

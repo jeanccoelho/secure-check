@@ -11,6 +11,8 @@
 #include <QPropertyAnimation>
 #include <QScrollArea>
 #include <QGridLayout>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 class LandingPage : public QWidget
 {
@@ -44,6 +46,14 @@ private:
     QFrame *m_heroFrame;
     QPushButton *m_startScanButton;
     QPushButton *m_githubButton;
+    
+    // Seleção de modo
+    QButtonGroup *m_modeButtonGroup;
+    QRadioButton *m_staticModeRadio;
+    QRadioButton *m_aiModeRadio;
+    
+public:
+    bool isAIModeSelected() const;
 };
 
 #endif // LANDINGPAGE_H

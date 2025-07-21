@@ -18,7 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     
     // Conectar sinais
     connect(m_landingPage, &LandingPage::startScanRequested, 
-            this, &MainWindow::showSecurityChecker);
+            this, [this]() {
+                bool aiMode = m_landingPage->isAIModeSelected();
+                showSecurityChecker(aiMode);
+            });
     connect(m_securityChecker, &SecurityChecker::backRequested, 
             this, &MainWindow::showLandingPage);
     
@@ -91,6 +94,13 @@ void MainWindow::showSecurityChecker()
 {
     m_stackedWidget->setCurrentWidget(m_securityChecker);
     statusBar()->showMessage("Verificação de Segurança");
+}
+
+void MainWindow::showSecurityChecker(bool aiMode)
+{
+    m_securityChecker->setAIMode(aiMode);
+    m_stackedWidget->setCurrentWidget(m_securityChecker);
+    statusBar()->showMessage(aiMode ? "Verificação de Segurança - Modo IA" : "Verificação de Segurança - Modo Estático");
 }
 
 void MainWindow::showAbout()
