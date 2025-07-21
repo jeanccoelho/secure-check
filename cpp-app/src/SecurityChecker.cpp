@@ -312,6 +312,10 @@ void SecurityChecker::createHeader()
     QFrame *headerFrame = new QFrame();
     headerFrame->setObjectName("headerFrame");
     headerFrame->setFixedHeight(80);
+    QHBoxLayout *headerLayout = new QHBoxLayout(headerFrame);
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+    headerLayout->setSpacing(16);
+    
     
     QHBoxLayout *headerLayout = new QHBoxLayout(headerFrame);
     headerLayout->setContentsMargins(32, 0, 32, 0);
@@ -322,6 +326,7 @@ void SecurityChecker::createHeader()
     connect(m_backButton, &QPushButton::clicked, this, &SecurityChecker::onBackClicked);
     
     headerLayout->addWidget(m_backButton);
+    QLabel *osLabel = new QLabel("Sistema Operacional:");
     headerLayout->addStretch();
     
     // Título da página (será atualizado baseado no modo)
@@ -842,6 +847,10 @@ void SecurityChecker::updateActionButtons()
     }
 }
 
+    
+    if (m_currentCheckIndex >= m_currentVulnerabilities.size()) {
+        return;
+    }
     
     const VulnerabilityDefinition &vuln = m_currentVulnerabilities[m_currentCheckIndex];
     
