@@ -565,11 +565,15 @@ void SecurityChecker::startOllamaAnalysis()
         return;
     }
     
-    // Mostrar status de carregamento
-    m_checkTitle->setText("Analisando sistema com IA...");
-    m_descriptionLabel->setText("Coletando informações do sistema e enviando para análise de IA");
+    // Mostrar status de carregamento com mais detalhes
+    m_checkTitle->setText("Análise de IA em Andamento...");
+    m_descriptionLabel->setText(QString("Enviando dados do sistema para o modelo %1. Isso pode levar vários minutos, especialmente se o modelo estiver sendo carregado pela primeira vez.").arg(m_selectedModel));
     m_impactLabel->clear();
     m_severityLabel->clear();
+    
+    // Mostrar progresso indeterminado
+    m_progressBar->setRange(0, 0); // Progresso indeterminado
+    m_progressLabel->setText("Aguardando resposta da IA...");
     
     // Coletar informações do sistema
     SystemInfo systemInfo = collectSystemInfo();
@@ -1080,9 +1084,10 @@ void SecurityChecker::onOllamaVulnerabilitiesReceived(const QVector<Vulnerabilit
     
     m_currentCheckIndex = 0;
     
-    // Restaurar progresso normal
+    // Restaurar progresso normal após análise da IA
     m_progressBar->setRange(0, vulnerabilities.size());
     m_progressBar->setValue(0);
+    m_progressLabel->setText(QString("0 de %1").arg(vulnerabilities.size()));
     
     // Agora sim, mostrar a primeira verificação
     updateOSDisplay();
@@ -1099,40 +1104,20 @@ void SecurityChecker::onOllamaError(const QString &error)
     m_impactLabel->setText("💡 Sugestão: Use a verificação local que funciona offline e não depende de servidores externos.");
     m_severityLabel->clear();
     
-    // Restaurar progresso normal
+    // Restaurar progresso normal após erro
     m_progressBar->setRange(0, 100);
     m_progressBar->setValue(0);
     m_progressLabel->setText("Erro na análise");
     
     m_resultFrame->show();
     m_resultIcon->setText("❌");
-    m_resultText->setText("Servidor Ollama indisponível");
+    m_resultText->setText("Análise de IA falhou - Use verificação local");
     
     // Mostrar botão para voltar e sugerir verificação local
     m_startCheckButton->hide();
     m_fixButton->hide();
     m_skipButton->hide();
     m_nextButton->hide();
-    
-    // Adicionar botão para tentar verificação local
-    QPushButton *localButton = new QPushButton("🔄 Usar Verificação Local");
-    localButton->setObjectName("primaryButton");
-    localButton->setToolTip("Usar verificações pré-definidas que funcionam offline");
-    
-    // Encontrar o layout dos botões e adicionar o botão local
-    QWidget *buttonWidget = findChild<QWidget*>();
-    if (buttonWidget) {
-        QHBoxLayout *buttonLayout = qobject_cast<QHBoxLayout*>(buttonWidget->layout());
-        if (buttonLayout) {
-            buttonLayout->addWidget(localButton);
-            connect(localButton, &QPushButton::clicked, [this]() {
-                // Mudar para modo local e recarregar
-                m_scanMode = LandingPage::ScanMode::Local;
-                m_selectedModel.clear();
-                loadVulnerabilities();
-            });
-        }
-    }
 }
     
     // Header

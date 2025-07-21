@@ -14,9 +14,9 @@ OllamaClient::OllamaClient(QObject *parent)
     , m_timeoutTimer(new QTimer(this))
     , m_currentReply(nullptr)
 {
-    // Configurar timeout de 180 segundos para análises de IA (3 minutos)
+    // Configurar timeout de 600 segundos para análises de IA (10 minutos)
     m_timeoutTimer->setSingleShot(true);
-    m_timeoutTimer->setInterval(180000);
+    m_timeoutTimer->setInterval(600000);
     connect(m_timeoutTimer, &QTimer::timeout, this, &OllamaClient::onTimeout);
     
     qDebug() << "OllamaClient inicializado com endpoint:" << OLLAMA_ENDPOINT;
@@ -182,7 +182,7 @@ void OllamaClient::onAnalysisReplyFinished()
     
     // Tratamento específico para erros de servidor
     if (httpStatus == 504) {
-        emit errorOccurred("Servidor Ollama não respondeu (Gateway Timeout). O servidor pode estar sobrecarregado ou o modelo pode estar sendo carregado. Tente novamente em alguns minutos.");
+        emit errorOccurred("Servidor Ollama demorou para responder (Gateway Timeout). Modelos grandes podem levar 5-10 minutos para carregar. Aguarde um pouco e tente novamente, ou use a verificação local.");
         cleanup();
         return;
     }
@@ -316,8 +316,8 @@ void OllamaClient::onNetworkError(QNetworkReply::NetworkError error)
 
 void OllamaClient::onTimeout()
 {
-    qDebug() << "Timeout na requisição para o Ollama (180 segundos)";
-    emit errorOccurred("Timeout: O servidor Ollama não respondeu em 3 minutos. O servidor pode estar sobrecarregado ou processando uma requisição complexa. Tente novamente mais tarde ou use a verificação local.");
+    qDebug() << "Timeout na requisição para o Ollama (600 segundos)";
+    emit errorOccurred("Timeout: O servidor Ollama não respondeu em 10 minutos. O modelo pode estar sendo carregado pela primeira vez ou o servidor está muito sobrecarregado. Tente novamente mais tarde ou use a verificação local.");
     cleanup();
 }
 
