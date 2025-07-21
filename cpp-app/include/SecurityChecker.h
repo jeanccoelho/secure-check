@@ -14,6 +14,7 @@
 #include <QFileDialog>
 #include <QDateTime>
 #include <QScrollArea>
+#include <QCheckBox>
 #include "VulnerabilityDefinition.h"
 #include "VulnerabilityManager.h"
 #include "SystemChecker.h"
