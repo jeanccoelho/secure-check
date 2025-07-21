@@ -16,7 +16,7 @@ OllamaClient::OllamaClient(QObject *parent)
     
     // Configuração padrão para o endpoint da AnnaBank
     m_config.endpoint = "https://ollama.annabank.com.br";
-    m_config.model = "llama3.1";
+    m_config.model = "llama3.1:latest";
     m_config.timeout = 60000; // 60 segundos para endpoint remoto
     m_config.enabled = false;
     

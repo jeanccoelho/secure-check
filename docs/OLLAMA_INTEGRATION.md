@@ -111,7 +111,7 @@ https://ollama.annabank.com.br
 
 | Modelo | Tamanho | Velocidade | Qualidade | Uso |
 |--------|---------|------------|-----------|-----|
-| `llama3.1` | ~4GB | Média | Alta | **Recomendado** |
+| `llama3.1:latest` | ~4GB | Média | Alta | **Recomendado** |
 | `codellama` | ~3.8GB | Rápida | Boa | Análise técnica |
 | `mistral` | ~4.1GB | Média | Alta | Alternativa |
 | `llama3.1:70b` | ~40GB | Lenta | Excelente | Servidores potentes |
@@ -179,7 +179,7 @@ ollama pull llama3.1
 
 ### **Recursos Necessários:**
 
-| Componente | Tradicional | IA (llama3.1) |
+| Componente | Tradicional | IA (llama3.1:latest) |
 |------------|-------------|---------------|
 | RAM | ~100MB | ~4-6GB |
 | CPU | Baixo | Alto |

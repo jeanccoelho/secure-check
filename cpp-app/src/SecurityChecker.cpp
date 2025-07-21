@@ -842,34 +842,6 @@ void SecurityChecker::updateActionButtons()
     }
 }
 
-void SecurityChecker::updateOllamaStatus()
-{
-    if (!m_isOllamaModeEnabled) {
-        m_ollamaStatusLabel->setText("Status: Desabilitado");
-        m_ollamaStatusLabel->setStyleSheet("color: #6b7280; font-size: 12px;");
-        return;
-    }
-    
-    if (m_isOllamaAnalysisRunning) {
-        m_ollamaStatusLabel->setText("Status: Analisando...");
-        m_ollamaStatusLabel->setStyleSheet("color: #2563eb; font-size: 12px;");
-        return;
-    }
-    
-    if (m_ollamaClient && m_ollamaClient->isConnected()) {
-        m_ollamaStatusLabel->setText("Status: Conectado ✅");
-        m_ollamaStatusLabel->setStyleSheet("color: #10b981; font-size: 12px;");
-    } else {
-        m_ollamaStatusLabel->setText("Status: Desconectado ❌");
-        m_ollamaStatusLabel->setStyleSheet("color: #ef4444; font-size: 12px;");
-    }
-}
-
-void SecurityChecker::onStartCheckClicked()
-{
-    if (m_currentCheckIndex >= m_currentVulnerabilities.size()) {
-        return;
-    }
     
     const VulnerabilityDefinition &vuln = m_currentVulnerabilities[m_currentCheckIndex];
     
