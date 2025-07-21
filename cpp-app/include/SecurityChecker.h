@@ -68,8 +68,6 @@ private:
     void updateOSDisplay();
     void showResults();
     void resetChecker();
-    void updateOllamaStatus();
-    void showOllamaConfigDialog();
     
     QString getSeverityColor(Severity severity) const;
     QString getStatusText(CheckStatus status) const;
