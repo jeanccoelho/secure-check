@@ -7,6 +7,14 @@
 #include <QCheckBox>
 #include <QInputDialog>
 #include <QGroupBox>
+#include <QFileDialog>
+#include <QTextStream>
+#include <QDateTime>
+#include <QDialog>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QDialogButtonBox>
 
 SecurityChecker::SecurityChecker(QWidget *parent)
     : QWidget(parent)
@@ -65,6 +73,7 @@ void SecurityChecker::setupUI()
     createProgressSection();
     setupOllamaUI();
     createCheckSection();
+    createOllamaSection();
     createActionButtons();
     createResultsSection();
     
@@ -503,6 +512,68 @@ void SecurityChecker::setupOllamaUI()
     m_ollamaFrame->setVisible(false);
 }
 
+void SecurityChecker::createOllamaSection()
+{
+    // Frame para opções do Ollama
+    QGroupBox *ollamaGroup = new QGroupBox("🤖 Análise com Inteligência Artificial");
+    ollamaGroup->setStyleSheet(R"(
+        QGroupBox {
+            font-weight: bold;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px 0 5px;
+        }
+    )");
+    
+    QVBoxLayout *ollamaLayout = new QVBoxLayout(ollamaGroup);
+    
+    // Checkbox para ativar modo IA
+    m_ollamaCheckBox = new QCheckBox("Usar análise com IA (Ollama)");
+    m_ollamaCheckBox->setToolTip("Ativar análise inteligente de vulnerabilidades usando IA");
+    connect(m_ollamaCheckBox, &QCheckBox::toggled, this, &SecurityChecker::onOllamaModeToggled);
+    
+    // Layout horizontal para controles
+    QHBoxLayout *controlsLayout = new QHBoxLayout();
+    
+    // Botão de configuração
+    m_ollamaConfigButton = new QPushButton("⚙️ Configurar");
+    m_ollamaConfigButton->setEnabled(false);
+    m_ollamaConfigButton->setToolTip("Configurar endpoint e modelo do Ollama");
+    connect(m_ollamaConfigButton, &QPushButton::clicked, this, &SecurityChecker::onOllamaConfigClicked);
+    
+    // Botão de análise
+    m_ollamaAnalysisButton = new QPushButton("🔍 Analisar com IA");
+    m_ollamaAnalysisButton->setEnabled(false);
+    m_ollamaAnalysisButton->setToolTip("Iniciar análise de vulnerabilidades com IA");
+    connect(m_ollamaAnalysisButton, &QPushButton::clicked, this, &SecurityChecker::onOllamaAnalysisClicked);
+    
+    controlsLayout->addWidget(m_ollamaConfigButton);
+    controlsLayout->addWidget(m_ollamaAnalysisButton);
+    controlsLayout->addStretch();
+    
+    // Status do Ollama
+    m_ollamaStatusLabel = new QLabel("Status: Desabilitado");
+    m_ollamaStatusLabel->setStyleSheet("color: #6b7280; font-size: 12px;");
+    
+    // Barra de progresso do Ollama
+    m_ollamaProgressBar = new QProgressBar();
+    m_ollamaProgressBar->setVisible(false);
+    m_ollamaProgressBar->setRange(0, 0); // Indeterminado
+    
+    ollamaLayout->addWidget(m_ollamaCheckBox);
+    ollamaLayout->addLayout(controlsLayout);
+    ollamaLayout->addWidget(m_ollamaStatusLabel);
+    ollamaLayout->addWidget(m_ollamaProgressBar);
+    
+    m_mainLayout->addWidget(ollamaGroup);
+}
+
 void SecurityChecker::createCheckSection()
 {
     m_checkFrame = new QFrame();
@@ -719,6 +790,7 @@ void SecurityChecker::resetChecker()
     m_currentCheckIndex = 0;
     m_checkResults.clear();
     m_isCompleted = false;
+    m_isOllamaAnalysisRunning = false;
     
     // Resetar UI
     m_resultFrame->setVisible(false);
@@ -727,6 +799,7 @@ void SecurityChecker::resetChecker()
     m_checkFrame->setVisible(true);
     
     updateActionButtons();
+    updateOllamaStatus();
 }
 
 void SecurityChecker::updateProgress()
@@ -815,6 +888,29 @@ void SecurityChecker::updateActionButtons()
     } else {
         m_resultFrame->setVisible(false);
         m_fixCommandEdit->setVisible(false);
+    }
+}
+
+void SecurityChecker::updateOllamaStatus()
+{
+    if (!m_isOllamaModeEnabled) {
+        m_ollamaStatusLabel->setText("Status: Desabilitado");
+        m_ollamaStatusLabel->setStyleSheet("color: #6b7280; font-size: 12px;");
+        return;
+    }
+    
+    if (m_isOllamaAnalysisRunning) {
+        m_ollamaStatusLabel->setText("Status: Analisando...");
+        m_ollamaStatusLabel->setStyleSheet("color: #2563eb; font-size: 12px;");
+        return;
+    }
+    
+    if (m_ollamaClient && m_ollamaClient->isConnected()) {
+        m_ollamaStatusLabel->setText("Status: Conectado ✅");
+        m_ollamaStatusLabel->setStyleSheet("color: #10b981; font-size: 12px;");
+    } else {
+        m_ollamaStatusLabel->setText("Status: Desconectado ❌");
+        m_ollamaStatusLabel->setStyleSheet("color: #ef4444; font-size: 12px;");
     }
 }
 
@@ -987,6 +1083,16 @@ void SecurityChecker::onOllamaModeToggled(bool enabled)
         updateCurrentCheck();
         updateActionButtons();
     }
+    
+    m_ollamaConfigButton->setEnabled(enabled);
+    m_ollamaAnalysisButton->setEnabled(enabled);
+    
+    if (enabled) {
+        // Testar conexão quando ativado
+        m_ollamaClient->testConnection();
+    }
+    
+    updateOllamaStatus();
 }
 
 void SecurityChecker::onOllamaConfigClicked()
@@ -996,26 +1102,48 @@ void SecurityChecker::onOllamaConfigClicked()
 
 void SecurityChecker::showOllamaConfigDialog()
 {
+    QDialog dialog(this);
+    dialog.setWindowTitle("Configuração do Ollama");
+    dialog.setModal(true);
+    dialog.resize(400, 200);
+    
+    QFormLayout *layout = new QFormLayout(&dialog);
+    
+    // Campos de configuração
+    QLineEdit *endpointEdit = new QLineEdit();
+    QLineEdit *modelEdit = new QLineEdit();
+    QSpinBox *timeoutSpin = new QSpinBox();
+    timeoutSpin->setRange(5000, 300000);
+    timeoutSpin->setSuffix(" ms");
+    
+    // Carregar configuração atual
     OllamaConfig config = m_ollamaClient->getConfig();
+    endpointEdit->setText(config.endpoint);
+    modelEdit->setText(config.model);
+    timeoutSpin->setValue(config.timeout);
     
-    bool ok;
-    QString endpoint = QInputDialog::getText(this, "Configurar Ollama", 
-        "Endpoint do Ollama:", QLineEdit::Normal, config.endpoint, &ok);
+    layout->addRow("Endpoint:", endpointEdit);
+    layout->addRow("Modelo:", modelEdit);
+    layout->addRow("Timeout:", timeoutSpin);
     
-    if (ok && !endpoint.isEmpty()) {
-        config.endpoint = endpoint;
+    // Botões
+    QDialogButtonBox *buttons = new QDialogButtonBox(
+        QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addRow(buttons);
+    
+    if (dialog.exec() == QDialog::Accepted) {
+        // Aplicar nova configuração
+        config.endpoint = endpointEdit->text();
+        config.model = modelEdit->text();
+        config.timeout = timeoutSpin->value();
+        config.enabled = m_isOllamaModeEnabled;
         
-        QString model = QInputDialog::getText(this, "Configurar Ollama", 
-            "Modelo:", QLineEdit::Normal, config.model, &ok);
+        m_ollamaClient->setConfig(config);
         
-        if (ok && !model.isEmpty()) {
-            config.model = model;
-            config.enabled = true;
-            
-            m_ollamaClient->setConfig(config);
-            
-            // Testar conexão
-            m_ollamaStatusLabel->setText("Testando conexão...");
+        // Testar nova conexão
+        if (m_isOllamaModeEnabled) {
             m_ollamaClient->testConnection();
         }
     }
@@ -1028,17 +1156,19 @@ void SecurityChecker::onOllamaAnalysisClicked()
     }
     
     m_isOllamaAnalysisRunning = true;
+    m_ollamaProgressBar->setVisible(true);
     m_ollamaAnalysisButton->setEnabled(false);
     m_ollamaAnalysisButton->setText("Analisando...");
-    m_ollamaProgressBar->setVisible(true);
     
-    // Coletar informações do sistema
+    updateOllamaStatus();
+    
+    // Coletar informações do sistema de forma assíncrona
     m_systemChecker->collectSystemInfoAsync();
 }
 
 void SecurityChecker::onSystemInfoCollected(const SystemInfo &info)
 {
-    // Enviar para análise do Ollama
+    // Enviar dados para análise do Ollama
     m_ollamaClient->analyzeSystem(info);
 }
 
@@ -1051,30 +1181,32 @@ void SecurityChecker::onOllamaVulnerabilitiesFound(const QVector<VulnerabilityDe
     m_checkResults.clear();
     m_currentCheckIndex = 0;
     
-    // Atualizar progresso
+    // Atualizar interface
     updateProgress();
+    updateCurrentCheck();
+    updateActionButtons();
     
-    // Mostrar primeira vulnerabilidade encontrada
-    if (!vulnerabilities.isEmpty()) {
-        updateCurrentCheck();
-        
-        // Marcar automaticamente como vulnerável (Ollama já identificou)
-        CheckResult result;
-        result.id = vulnerabilities[0].id;
-        result.status = CheckStatus::Vulnerable;
-        result.isVulnerable = true;
-        m_checkResults.append(result);
-        
-        updateActionButtons();
-    }
+    m_progressLabel->setText(QString("Ollama encontrou %1 vulnerabilidades para análise")
+                            .arg(vulnerabilities.size()));
+    
+    // Marcar automaticamente como vulnerável (Ollama já identificou)
+    CheckResult result;
+    result.id = vulnerabilities[0].id;
+    result.status = CheckStatus::Vulnerable;
+    result.isVulnerable = true;
+    m_checkResults.append(result);
+    
+    updateActionButtons();
 }
 
 void SecurityChecker::onOllamaAnalysisCompleted(bool success)
 {
     m_isOllamaAnalysisRunning = false;
+    m_ollamaProgressBar->setVisible(false);
     m_ollamaAnalysisButton->setEnabled(true);
     m_ollamaAnalysisButton->setText("🔍 Analisar com IA");
-    m_ollamaProgressBar->setVisible(false);
+    
+    updateOllamaStatus();
     
     if (success) {
         m_ollamaStatusLabel->setText("Análise concluída com sucesso");
@@ -1086,8 +1218,13 @@ void SecurityChecker::onOllamaAnalysisCompleted(bool success)
             QMessageBox::information(this, "Análise IA", 
                 "🎉 Parabéns! A IA não encontrou vulnerabilidades críticas em seu sistema.");
         }
+        
+        QMessageBox::information(this, "Análise Concluída", 
+                                "Análise com IA concluída com sucesso!");
     } else {
         m_ollamaStatusLabel->setText("Erro na análise");
+        QMessageBox::warning(this, "Erro na Análise", 
+                            "Falha na análise com IA. Verifique a conexão com o Ollama.");
     }
 }
 
@@ -1105,6 +1242,13 @@ void SecurityChecker::onOllamaConnectionTest(bool success, const QString &messag
         QMessageBox::warning(this, "Erro de Conexão", 
             QString("Não foi possível conectar ao Ollama:\n%1").arg(message));
     }
+    
+    updateOllamaStatus();
+    
+    if (!success) {
+        m_ollamaStatusLabel->setText(QString("Status: Erro - %1").arg(message));
+        m_ollamaStatusLabel->setStyleSheet("color: #ef4444; font-size: 12px;");
+    }
 }
 
 void SecurityChecker::onOllamaError(const QString &error)
@@ -1113,30 +1257,22 @@ void SecurityChecker::onOllamaError(const QString &error)
     m_ollamaStatusLabel->setStyleSheet("color: #dc2626; font-size: 12px; background: white;");
     
     QMessageBox::critical(this, "Erro Ollama", error);
+    
+    m_isOllamaAnalysisRunning = false;
+    m_ollamaProgressBar->setVisible(false);
+    m_ollamaAnalysisButton->setEnabled(true);
+    m_ollamaAnalysisButton->setText("🔍 Analisar com IA");
+    
+    updateOllamaStatus();
+    
+    QMessageBox::critical(this, "Erro do Ollama", 
+                         QString("Erro na comunicação com Ollama:\n%1").arg(error));
 }
 
 void SecurityChecker::onOllamaProgress(const QString &status)
 {
     m_ollamaStatusLabel->setText(status);
-}
-
-void SecurityChecker::updateOllamaStatus()
-{
-    OllamaConfig config = m_ollamaClient->getConfig();
-    
-    if (config.enabled && m_ollamaClient->isConnected()) {
-        m_ollamaStatusLabel->setText("✅ Ollama conectado");
-        m_ollamaStatusLabel->setStyleSheet("color: #059669; font-size: 12px; background: white;");
-        m_ollamaAnalysisButton->setEnabled(true);
-    } else if (config.enabled) {
-        m_ollamaStatusLabel->setText("⚠️ Ollama configurado mas desconectado");
-        m_ollamaStatusLabel->setStyleSheet("color: #d97706; font-size: 12px; background: white;");
-        m_ollamaAnalysisButton->setEnabled(false);
-    } else {
-        m_ollamaStatusLabel->setText("Ollama não configurado");
-        m_ollamaStatusLabel->setStyleSheet("color: #6b7280; font-size: 12px; background: white;");
-        m_ollamaAnalysisButton->setEnabled(false);
-    }
+    m_progressLabel->setText(status);
 }
 
 void SecurityChecker::showResults()

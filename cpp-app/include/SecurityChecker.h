@@ -56,6 +56,7 @@ private:
     void setupUI();
     void createHeader();
     void createProgressSection();
+    void createOllamaSection();
     void createCheckSection();
     void createActionButtons();
     void createResultsSection();
@@ -67,6 +68,8 @@ private:
     void updateOSDisplay();
     void showResults();
     void resetChecker();
+    void updateOllamaStatus();
+    void showOllamaConfigDialog();
     
     QString getSeverityColor(Severity severity) const;
     QString getStatusText(CheckStatus status) const;
