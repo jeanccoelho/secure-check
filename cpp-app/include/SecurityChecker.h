@@ -31,6 +31,7 @@ public:
 
 signals:
     void backRequested();
+    void errorOccurred(const QString &error);
 
 private slots:
     void onBackClicked();

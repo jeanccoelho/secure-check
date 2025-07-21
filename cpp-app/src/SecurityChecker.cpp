@@ -1008,9 +1008,13 @@ void SecurityChecker::onFixCompleted(const QString &id, bool success)
 
 void SecurityChecker::onErrorOccurred(const QString &error)
 {
+    // Mostrar erro na interface
     m_resultFrame->show();
     m_resultIcon->setText("❌");
     m_resultText->setText(QString("Erro: %1").arg(error));
+    
+    // Reemitir o sinal para outros componentes se necessário
+    emit errorOccurred(error);
 }
 
 void SecurityChecker::onSaveReportClicked()
