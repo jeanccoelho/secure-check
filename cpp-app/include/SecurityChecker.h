@@ -17,6 +17,8 @@
 #include "VulnerabilityDefinition.h"
 #include "VulnerabilityManager.h"
 #include "SystemChecker.h"
+#include "OllamaClient.h"
+#include "LandingPage.h"
 
 class SecurityChecker : public QWidget
 {
@@ -24,6 +26,8 @@ class SecurityChecker : public QWidget
 
 public:
     explicit SecurityChecker(QWidget *parent = nullptr);
+    
+    void setScanMode(LandingPage::ScanMode mode, const QString &modelName = QString());
 
 signals:
     void backRequested();
@@ -38,6 +42,8 @@ private slots:
     void onFixCompleted(const QString &id, bool success);
     void onErrorOccurred(const QString &error);
     void onSaveReportClicked();
+    void onOllamaVulnerabilitiesReceived(const QVector<VulnerabilityDefinition> &vulnerabilities);
+    void onOllamaError(const QString &error);
 
 private:
     void setupUI();
@@ -58,6 +64,8 @@ private:
     QString getSeverityColor(Severity severity) const;
     QString getStatusText(CheckStatus status) const;
     QString getStatusColor(CheckStatus status) const;
+    void startOllamaAnalysis();
+    SystemInfo collectSystemInfo() const;
     
     // UI Components
     QVBoxLayout *m_mainLayout;
@@ -88,11 +96,16 @@ private:
     // Data
     VulnerabilityManager *m_vulnerabilityManager;
     SystemChecker *m_systemChecker;
+    OllamaClient *m_ollamaClient;
     QVector<VulnerabilityDefinition> m_currentVulnerabilities;
     QVector<CheckResult> m_checkResults;
     int m_currentCheckIndex;
     QString m_currentOS;
     bool m_isCompleted;
+    
+    // Modo de verificação
+    LandingPage::ScanMode m_scanMode;
+    QString m_selectedModel;
 };
 
 #endif // SECURITYCHECKER_H
