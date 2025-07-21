@@ -529,7 +529,7 @@ void LandingPage::createScanModeSelection(QVBoxLayout *parentLayout)
     parentLayout->addWidget(m_scanModeFrame);
     
     // Conectar sinais
-    connect(m_scanModeGroup, QOverload<int>::of(&QButtonGroup::buttonClicked),
+    connect(m_scanModeGroup, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked),
             this, &LandingPage::onScanModeChanged);
     
     // Inicializar estado
@@ -671,7 +671,11 @@ void LandingPage::onStartScanClicked()
 
 void LandingPage::onScanModeChanged()
 {
-    bool isOllamaMode = (m_ollamaScanRadio && m_ollamaScanRadio->isChecked());
+    bool isOllamaMode = false;
+    if (m_scanModeGroup) {
+        QAbstractButton *checkedButton = m_scanModeGroup->checkedButton();
+        isOllamaMode = (checkedButton == m_ollamaScanRadio);
+    }
     
     setOllamaControlsEnabled(isOllamaMode);
     
