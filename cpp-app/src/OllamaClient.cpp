@@ -38,6 +38,14 @@ void OllamaClient::getAvailableModels()
     
     qDebug() << "Buscando modelos disponíveis em:" << url.toString();
     
+    // LOG DO CURL PARA MODELOS
+    qDebug() << "=== CURL COMMAND PARA MODELOS ===";
+    qDebug() << "curl -X GET \\";
+    qDebug() << "  -H \"Content-Type: application/json\" \\";
+    qDebug() << "  -H \"User-Agent: SecurityChecker/1.0\" \\";
+    qDebug() << "  \"" << url.toString() << "\"";
+    qDebug() << "=== FIM CURL MODELOS ===";
+    
     m_currentReply = m_networkManager->get(request);
     connect(m_currentReply, &QNetworkReply::finished, this, &OllamaClient::onModelsReplyFinished);
     connect(m_currentReply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred),
@@ -79,6 +87,23 @@ void OllamaClient::analyzeSystemSecurity(const SystemInfo &systemInfo, const QSt
     qDebug() << "Tamanho do prompt:" << prompt.length() << "caracteres";
     qDebug() << "Request JSON size:" << data.size() << "bytes";
     qDebug() << "Request URL:" << url.toString();
+    
+    // LOG DO CURL EQUIVALENTE
+    qDebug() << "=== CURL COMMAND EQUIVALENTE ===";
+    qDebug() << "curl -X POST \\";
+    qDebug() << "  -H \"Content-Type: application/json\" \\";
+    qDebug() << "  -H \"User-Agent: SecurityChecker/1.0\" \\";
+    qDebug() << "  -H \"Accept: application/json\" \\";
+    qDebug() << "  -H \"Connection: keep-alive\" \\";
+    qDebug() << "  -d '" << QString::fromUtf8(data).replace("'", "\\'") << "' \\";
+    qDebug() << "  \"" << url.toString() << "\"";
+    qDebug() << "=== FIM CURL COMMAND ===";
+    
+    // LOG DO JSON FORMATADO
+    qDebug() << "=== REQUEST JSON FORMATADO ===";
+    QJsonDocument prettyDoc = QJsonDocument::fromJson(data);
+    qDebug() << prettyDoc.toJson(QJsonDocument::Indented);
+    qDebug() << "=== FIM REQUEST JSON ===";
     
     m_currentReply = m_networkManager->post(request, data);
     connect(m_currentReply, &QNetworkReply::finished, this, &OllamaClient::onAnalysisReplyFinished);
