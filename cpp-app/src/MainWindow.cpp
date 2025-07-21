@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     createStatusBar();
     
     // Conectar sinais
-    connect(m_landingPage, &LandingPage::startScanRequested, 
+    connect(m_landingPage, QOverload<LandingPage::ScanMode, const QString&>::of(&LandingPage::startScanRequested),
             this, &MainWindow::showSecurityChecker);
     connect(m_securityChecker, &SecurityChecker::backRequested, 
             this, &MainWindow::showLandingPage);
@@ -87,10 +87,20 @@ void MainWindow::showLandingPage()
     statusBar()->showMessage("Página Inicial");
 }
 
-void MainWindow::showSecurityChecker()
+void MainWindow::showSecurityChecker(LandingPage::ScanMode mode, const QString &modelName)
 {
+    // Configurar modo de verificação
+    m_securityChecker->setScanMode(mode, modelName);
+    
     m_stackedWidget->setCurrentWidget(m_securityChecker);
-    statusBar()->showMessage("Verificação de Segurança");
+    
+    QString statusMsg = "Verificação de Segurança";
+    if (mode == LandingPage::ScanMode::Ollama) {
+        statusMsg += QString(" (IA: %1)").arg(modelName);
+    } else {
+        statusMsg += " (Local)";
+    }
+    statusBar()->showMessage(statusMsg);
 }
 
 void MainWindow::showAbout()

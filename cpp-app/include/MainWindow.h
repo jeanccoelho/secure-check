@@ -19,7 +19,7 @@ public:
 
 private slots:
     void showLandingPage();
-    void showSecurityChecker();
+    void showSecurityChecker(LandingPage::ScanMode mode = LandingPage::ScanMode::Local, const QString &modelName = QString());
     void showAbout();
     void checkAdminPrivileges();
 
