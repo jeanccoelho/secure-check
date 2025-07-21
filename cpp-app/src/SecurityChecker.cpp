@@ -817,8 +817,9 @@ void SecurityChecker::updateActionButtons()
     }
 }
 
-    
-    if (m_currentCheckIndex >= m_currentVulnerabilities.size()) {
+void SecurityChecker::onStartCheckClicked()
+{
+    if (m_currentCheckIndex >= static_cast<int>(m_currentVulnerabilities.size())) {
         return;
     }
     
