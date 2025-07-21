@@ -55,6 +55,10 @@ void OllamaClient::analyzeSystemSecurity(const SystemInfo &systemInfo, const QSt
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("User-Agent", "SecurityChecker/1.0");
     
+    // Adicionar headers adicionais para debugging
+    request.setRawHeader("Accept", "application/json");
+    request.setRawHeader("Connection", "keep-alive");
+    
     // Construir prompt para análise de segurança
     QString prompt = buildSystemAnalysisPrompt(systemInfo);
     
@@ -65,7 +69,7 @@ void OllamaClient::analyzeSystemSecurity(const SystemInfo &systemInfo, const QSt
     requestData["options"] = QJsonObject{
         {"temperature", 0.1},
         {"top_p", 0.9},
-        {"max_tokens", 4000}
+        {"num_predict", 4000}
     };
     
     QJsonDocument doc(requestData);
@@ -73,6 +77,8 @@ void OllamaClient::analyzeSystemSecurity(const SystemInfo &systemInfo, const QSt
     
     qDebug() << "Enviando análise para modelo:" << modelName;
     qDebug() << "Tamanho do prompt:" << prompt.length() << "caracteres";
+    qDebug() << "Request JSON size:" << data.size() << "bytes";
+    qDebug() << "Request URL:" << url.toString();
     
     m_currentReply = m_networkManager->post(request, data);
     connect(m_currentReply, &QNetworkReply::finished, this, &OllamaClient::onAnalysisReplyFinished);
@@ -106,8 +112,15 @@ void OllamaClient::onModelsReplyFinished()
     
     m_timeoutTimer->stop();
     
+    // Log detalhado do status HTTP
+    int httpStatus = m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QString httpReason = m_currentReply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+    qDebug() << "Models HTTP Status:" << httpStatus << httpReason;
+    
     if (m_currentReply->error() != QNetworkReply::NoError) {
-        emit errorOccurred(QString("Erro ao buscar modelos: %1").arg(m_currentReply->errorString()));
+        QString errorDetails = QString("HTTP %1 %2 - %3").arg(httpStatus).arg(httpReason).arg(m_currentReply->errorString());
+        qDebug() << "Erro detalhado nos modelos:" << errorDetails;
+        emit errorOccurred(QString("Erro ao buscar modelos: %1").arg(errorDetails));
         cleanup();
         return;
     }
@@ -162,8 +175,15 @@ void OllamaClient::onAnalysisReplyFinished()
     
     m_timeoutTimer->stop();
     
+    // Log detalhado do status HTTP
+    int httpStatus = m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QString httpReason = m_currentReply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+    qDebug() << "HTTP Status:" << httpStatus << httpReason;
+    
     if (m_currentReply->error() != QNetworkReply::NoError) {
-        emit errorOccurred(QString("Erro na análise de segurança: %1").arg(m_currentReply->errorString()));
+        QString errorDetails = QString("HTTP %1 %2 - %3").arg(httpStatus).arg(httpReason).arg(m_currentReply->errorString());
+        qDebug() << "Erro detalhado:" << errorDetails;
+        emit errorOccurred(QString("Erro na análise de segurança: %1").arg(errorDetails));
         cleanup();
         return;
     }
@@ -210,11 +230,17 @@ void OllamaClient::onConnectionTestFinished()
     
     m_timeoutTimer->stop();
     
+    // Log detalhado do status HTTP
+    int httpStatus = m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QString httpReason = m_currentReply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+    qDebug() << "Connection test HTTP Status:" << httpStatus << httpReason;
+    
     bool success = (m_currentReply->error() == QNetworkReply::NoError);
     QString message;
     
     if (success) {
         QByteArray data = m_currentReply->readAll();
+        qDebug() << "Connection test response:" << data;
         QJsonDocument doc = QJsonDocument::fromJson(data);
         if (doc.isObject()) {
             QString version = doc.object()["version"].toString();
@@ -223,7 +249,8 @@ void OllamaClient::onConnectionTestFinished()
             message = "Conectado com sucesso!";
         }
     } else {
-        message = QString("Falha na conexão: %1").arg(m_currentReply->errorString());
+        QString errorDetails = QString("HTTP %1 %2 - %3").arg(httpStatus).arg(httpReason).arg(m_currentReply->errorString());
+        message = QString("Falha na conexão: %1").arg(errorDetails);
     }
     
     qDebug() << "Teste de conexão:" << (success ? "SUCESSO" : "FALHA") << "-" << message;
@@ -234,10 +261,24 @@ void OllamaClient::onConnectionTestFinished()
 
 void OllamaClient::onNetworkError(QNetworkReply::NetworkError error)
 {
-    Q_UNUSED(error)
+    qDebug() << "Network error code:" << error;
     
     if (m_currentReply) {
-        QString errorMsg = QString("Erro de rede: %1").arg(m_currentReply->errorString());
+        int httpStatus = m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QString httpReason = m_currentReply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        QByteArray responseData = m_currentReply->readAll();
+        
+        QString errorMsg = QString("Erro de rede (código %1): HTTP %2 %3 - %4")
+                          .arg(error)
+                          .arg(httpStatus)
+                          .arg(httpReason)
+                          .arg(m_currentReply->errorString());
+        
+        if (!responseData.isEmpty()) {
+            qDebug() << "Response body on error:" << responseData;
+            errorMsg += QString(" | Response: %1").arg(QString::fromUtf8(responseData.left(200)));
+        }
+        
         qDebug() << errorMsg;
         emit errorOccurred(errorMsg);
     }
