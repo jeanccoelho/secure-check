@@ -66,16 +66,16 @@ ollama pull mistral
 ```
 
 ### 3. **Iniciar Servidor**
-```bash
-ollama serve
-# Servidor rodará em: http://localhost:11434
+O SecurityChecker está configurado para usar o endpoint remoto:
+```
+https://ollama.annabank.com.br
 ```
 
 ### 4. **Configurar no SecurityChecker**
 1. Marque "Usar análise com IA"
 2. Clique em "⚙️ Configurar"
 3. Configure:
-   - **Endpoint**: `http://localhost:11434`
+   - **Endpoint**: `https://ollama.annabank.com.br`
    - **Modelo**: `llama3.1`
 
 ## 🎯 Uso
@@ -128,24 +128,24 @@ config.enabled = true;                       // Habilitar IA
 
 ### **Configuração de Rede:**
 
-Para usar Ollama remoto:
+O SecurityChecker usa por padrão o endpoint remoto da AnnaBank:
 ```bash
-# Servidor remoto
-OLLAMA_HOST=0.0.0.0:11434 ollama serve
+# Endpoint configurado
+https://ollama.annabank.com.br
 
-# No SecurityChecker
-# Endpoint: http://IP_SERVIDOR:11434
+# Para usar endpoint local (se necessário):
+# Endpoint: http://localhost:11434
 ```
 
 ## 🐛 Solução de Problemas
 
 ### **Erro: "Conexão recusada"**
 ```bash
-# Verificar se Ollama está rodando
-ps aux | grep ollama
+# Verificar conectividade com o endpoint
+curl -I https://ollama.annabank.com.br
 
-# Iniciar se necessário
-ollama serve
+# Verificar se o modelo está disponível
+curl https://ollama.annabank.com.br/api/tags
 ```
 
 ### **Erro: "Modelo não encontrado"**

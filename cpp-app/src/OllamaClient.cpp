@@ -14,6 +14,12 @@ OllamaClient::OllamaClient(QObject *parent)
 {
     m_networkManager = new QNetworkAccessManager(this);
     
+    // Configuração padrão para o endpoint da AnnaBank
+    m_config.endpoint = "https://ollama.annabank.com.br";
+    m_config.model = "llama3.1";
+    m_config.timeout = 60000; // 60 segundos para endpoint remoto
+    m_config.enabled = false;
+    
     m_timeoutTimer = new QTimer(this);
     m_timeoutTimer->setSingleShot(true);
     connect(m_timeoutTimer, &QTimer::timeout, this, &OllamaClient::onTimeout);

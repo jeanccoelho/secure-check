@@ -1,0 +1,19 @@
+{
+  "endpoint": "https://ollama.annabank.com.br",
+  "model": "llama3.1",
+  "timeout": 60000,
+  "enabled": false,
+  "description": "Configuração padrão do Ollama para SecurityChecker",
+  "models_available": [
+    "llama3.1",
+    "codellama",
+    "mistral",
+    "llama3.1:70b"
+  ],
+  "security_notes": [
+    "Endpoint HTTPS seguro",
+    "Processamento remoto via AnnaBank",
+    "Dados do sistema enviados via conexão criptografada",
+    "Nenhum dado pessoal é coletado ou enviado"
+  ]
+}
