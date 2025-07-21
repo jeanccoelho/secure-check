@@ -20,7 +20,6 @@ public:
 private slots:
     void showLandingPage();
     void showSecurityChecker();
-    void showSecurityChecker(bool aiMode);
     void showAbout();
     void checkAdminPrivileges();
 

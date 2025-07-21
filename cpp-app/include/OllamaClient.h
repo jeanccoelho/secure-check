@@ -11,9 +11,9 @@
 #include "VulnerabilityDefinition.h"
 
 struct OllamaConfig {
-    QString endpoint = "https://ollama.annabank.com.br";
-    QString model = "llama3.1:latest";
-    int timeout = 60000; // 60 segundos para endpoint remoto
+    QString endpoint = "http://localhost:11434";
+    QString model = "llama3.1";
+    int timeout = 30000; // 30 segundos
     bool enabled = false;
 };
 

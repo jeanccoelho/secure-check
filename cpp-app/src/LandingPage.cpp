@@ -249,32 +249,6 @@ void LandingPage::createHeroSection(QVBoxLayout *parentLayout)
     heroSubtitle->setAlignment(Qt::AlignCenter);
     heroSubtitle->setWordWrap(true);
     
-    // Seleção de modo de verificação
-    QFrame *modeFrame = new QFrame();
-    modeFrame->setStyleSheet("QFrame { background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 20px; }");
-    QVBoxLayout *modeLayout = new QVBoxLayout(modeFrame);
-    modeLayout->setSpacing(12);
-    
-    QLabel *modeTitle = new QLabel("Escolha o modo de verificação:");
-    modeTitle->setStyleSheet("font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 8px;");
-    modeTitle->setAlignment(Qt::AlignCenter);
-    
-    m_modeButtonGroup = new QButtonGroup(this);
-    
-    m_staticModeRadio = new QRadioButton("🔍 Modo Estático - Verificações pré-definidas (rápido e confiável)");
-    m_staticModeRadio->setStyleSheet("font-size: 14px; color: #374151; padding: 8px;");
-    m_staticModeRadio->setChecked(true); // Padrão
-    
-    m_aiModeRadio = new QRadioButton("🤖 Modo Dinâmico com IA - Análise inteligente personalizada");
-    m_aiModeRadio->setStyleSheet("font-size: 14px; color: #374151; padding: 8px;");
-    
-    m_modeButtonGroup->addButton(m_staticModeRadio, 0);
-    m_modeButtonGroup->addButton(m_aiModeRadio, 1);
-    
-    modeLayout->addWidget(modeTitle);
-    modeLayout->addWidget(m_staticModeRadio);
-    modeLayout->addWidget(m_aiModeRadio);
-    
     // Botão de ação principal
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->setAlignment(Qt::AlignCenter);
@@ -300,8 +274,6 @@ void LandingPage::createHeroSection(QVBoxLayout *parentLayout)
     
     heroLayout->addLayout(titleLayout);
     heroLayout->addLayout(subtitleLayout);
-    heroLayout->addSpacing(16);
-    heroLayout->addWidget(modeFrame);
     heroLayout->addSpacing(16);
     heroLayout->addLayout(buttonLayout);
     
@@ -424,9 +396,4 @@ void LandingPage::onStartScanClicked()
 void LandingPage::onGitHubClicked()
 {
     QDesktopServices::openUrl(QUrl("https://github.com/jeanccoelho/secure-check"));
-}
-
-bool LandingPage::isAIModeSelected() const
-{
-    return m_aiModeRadio && m_aiModeRadio->isChecked();
 }

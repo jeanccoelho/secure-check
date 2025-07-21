@@ -66,16 +66,16 @@ ollama pull mistral
 ```
 
 ### 3. **Iniciar Servidor**
-O SecurityChecker está configurado para usar o endpoint remoto:
-```
-https://ollama.annabank.com.br
+```bash
+ollama serve
+# Servidor rodará em: http://localhost:11434
 ```
 
 ### 4. **Configurar no SecurityChecker**
 1. Marque "Usar análise com IA"
 2. Clique em "⚙️ Configurar"
 3. Configure:
-   - **Endpoint**: `https://ollama.annabank.com.br`
+   - **Endpoint**: `http://localhost:11434`
    - **Modelo**: `llama3.1`
 
 ## 🎯 Uso
@@ -111,7 +111,7 @@ https://ollama.annabank.com.br
 
 | Modelo | Tamanho | Velocidade | Qualidade | Uso |
 |--------|---------|------------|-----------|-----|
-| `llama3.1:latest` | ~4GB | Média | Alta | **Recomendado** |
+| `llama3.1` | ~4GB | Média | Alta | **Recomendado** |
 | `codellama` | ~3.8GB | Rápida | Boa | Análise técnica |
 | `mistral` | ~4.1GB | Média | Alta | Alternativa |
 | `llama3.1:70b` | ~40GB | Lenta | Excelente | Servidores potentes |
@@ -128,24 +128,24 @@ config.enabled = true;                       // Habilitar IA
 
 ### **Configuração de Rede:**
 
-O SecurityChecker usa por padrão o endpoint remoto da AnnaBank:
+Para usar Ollama remoto:
 ```bash
-# Endpoint configurado
-https://ollama.annabank.com.br
+# Servidor remoto
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
 
-# Para usar endpoint local (se necessário):
-# Endpoint: http://localhost:11434
+# No SecurityChecker
+# Endpoint: http://IP_SERVIDOR:11434
 ```
 
 ## 🐛 Solução de Problemas
 
 ### **Erro: "Conexão recusada"**
 ```bash
-# Verificar conectividade com o endpoint
-curl -I https://ollama.annabank.com.br
+# Verificar se Ollama está rodando
+ps aux | grep ollama
 
-# Verificar se o modelo está disponível
-curl https://ollama.annabank.com.br/api/tags
+# Iniciar se necessário
+ollama serve
 ```
 
 ### **Erro: "Modelo não encontrado"**
@@ -179,7 +179,7 @@ ollama pull llama3.1
 
 ### **Recursos Necessários:**
 
-| Componente | Tradicional | IA (llama3.1:latest) |
+| Componente | Tradicional | IA (llama3.1) |
 |------------|-------------|---------------|
 | RAM | ~100MB | ~4-6GB |
 | CPU | Baixo | Alto |
